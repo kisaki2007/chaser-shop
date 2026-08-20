@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>CHASER Shop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <section class="page" data-page="shop">
+        <header class="hero">
+          <p class="kicker" id="greeting">Привет</p>
+          <h1>CHASER SHOP</h1>
+          <p class="muted">Стритвир. Дроп. Без лишнего.</p>
+          <input id="search" type="search" placeholder="Поиск: худи, Velocity, кепка…" />
+        </header>
+        <nav class="cats" id="cats"></nav>
+        <div class="grid" id="catalog"></div>
+      </section>
+
+      <section class="page hidden" data-page="favs">
+        <h2 class="page-title">Избранное</h2>
+        <div class="grid" id="favs"></div>
+      </section>
+
+      <section class="page hidden" data-page="cart">
+        <h2 class="page-title">Корзина</h2>
+        <div id="cartItems"></div>
+        <div class="checkout-box" id="checkoutBox">
+          <div class="total-row">
+            <span>Итого</span>
+            <strong id="cartTotal">0 ₽</strong>
+          </div>
+          <label class="field">
+            Адрес / комментарий
+            <input id="note" type="text" maxlength="160" placeholder="Город, доставка, пожелания" />
+          </label>
+          <button class="primary" id="checkout" type="button">Оформить заказ</button>
+        </div>
+      </section>
+
+      <section class="page hidden" data-page="profile">
+        <h2 class="page-title">Профиль</h2>
+        <div class="profile-card">
+          <div class="avatar" id="avatar">C</div>
+          <div>
+            <strong id="profileName">Гость</strong>
+            <p class="muted" id="profileMeta">Открой магазин из Telegram, чтобы подтянуть аккаунт</p>
+          </div>
+        </div>
+        <ul class="stats">
+          <li><span>В корзине</span><strong id="statCart">0</strong></li>
+          <li><span>Избранное</span><strong id="statFavs">0</strong></li>
+        </ul>
+        <p class="muted small">Заказы уходят боту через Telegram WebApp. Оплата подключается отдельно.</p>
+      </section>
+
+      <nav class="tabs">
+        <button type="button" data-tab="shop" class="active">Витрина</button>
+        <button type="button" data-tab="favs">Избранное</button>
+        <button type="button" data-tab="cart">Корзина <b id="tabCart">0</b></button>
+        <button type="button" data-tab="profile">Профиль</button>
+      </nav>
+    </div>
+
+    <section class="sheet hidden" id="productSheet">
+      <div class="sheet-card">
+        <button class="close" id="closeProduct" type="button">Закрыть</button>
+        <div class="sheet-visual" id="productVisual"></div>
+        <div class="sheet-head">
+          <h2 id="productName"></h2>
+          <button class="heart" id="favToggle" type="button" aria-label="Избранное">♡</button>
+        </div>
+        <p class="muted" id="productDesc"></p>
+        <p class="price" id="productPrice"></p>
+        <div class="sizes" id="sizes"></div>
+        <button class="primary" id="addToCart" type="button">В корзину</button>
+      </div>
+    </section>
+
+    <section class="sheet hidden" id="doneSheet">
+      <div class="sheet-card center">
+        <p class="done-mark">✓</p>
+        <h2>Заказ принят</h2>
+        <p class="muted" id="doneText"></p>
+        <button class="primary" id="closeDone" type="button">На витрину</button>
+      </div>
+    </section>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
