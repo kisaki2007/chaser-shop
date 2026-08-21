@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Шрифт GTA San Andreas -->
     <link href="https://fonts.cdnfonts.com/css/pricedown" rel="stylesheet">
     <style>
         * {
@@ -153,7 +152,6 @@
             z-index: 1000;
         }
 
-        /* Уведомление при добавлении в корзину */
         .toast {
             position: fixed;
             top: 20px;
@@ -178,7 +176,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Общий стиль для модалок */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -199,7 +196,7 @@
             border: 1px solid #ffd700;
             border-radius: 20px;
             width: 100%;
-            max-width: 360px;
+            max-width: 380px;
             padding: 24px 20px;
             position: relative;
             box-shadow: 0 10px 35px rgba(255, 215, 0, 0.25);
@@ -258,7 +255,6 @@
             margin-bottom: 16px;
         }
 
-        /* Приветственное модальное окно */
         .welcome-card {
             background: linear-gradient(145deg, #1c1c24, #121217);
             border: 1px solid rgba(255, 215, 0, 0.4);
@@ -289,6 +285,36 @@
             font-weight: 700;
             letter-spacing: 1px;
         }
+
+        /* Стиль формы доставки */
+        .form-group {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: #ffd700;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #0f0f13;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #ffd700;
+        }
     </style>
 </head>
 <body>
@@ -297,7 +323,7 @@
 
     <div id="products-container" class="products-grid"></div>
 
-    <div id="cart-bar" class="cart-bar" onclick="sendOrder()">
+    <div id="cart-bar" class="cart-bar" onclick="openDeliveryModal()">
         <span>Оформить заказ (<span id="cart-count">0</span>)</span>
         <span id="cart-total">0 PLN</span>
     </div>
@@ -306,7 +332,7 @@
         Спасибо за покупку! 💖(⁠ ⁠•⁠ ⁠¾⁠ ⁠•⁠ ⁠)
     </div>
 
-    <!-- Модальное окно приветствия -->
+    <!-- Приветствие -->
     <div id="welcome-modal" class="modal-overlay" style="display: flex;">
         <div class="modal-card welcome-card">
             <h2 class="welcome-title">Приветствуем! ✨</h2>
@@ -321,10 +347,10 @@
         </div>
     </div>
 
-    <!-- Модальное окно просмотра товара -->
-    <div id="product-modal" class="modal-overlay" onclick="closeModal(event)">
+    <!-- Просмотр товара -->
+    <div id="product-modal" class="modal-overlay" onclick="closeModal(event, 'product-modal')">
         <div class="modal-card" onclick="event.stopPropagation()">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <span class="modal-close" onclick="closeModal(null, 'product-modal')">&times;</span>
             <div class="modal-img-container">
                 <img id="modal-img" src="" alt="">
             </div>
@@ -332,6 +358,30 @@
             <p id="modal-desc" class="modal-desc"></p>
             <p id="modal-price" class="modal-price"></p>
             <button id="modal-btn" class="btn-add">Добавить в корзину</button>
+        </div>
+    </div>
+
+    <!-- Форма доставки -->
+    <div id="delivery-modal" class="modal-overlay" onclick="closeModal(event, 'delivery-modal')">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal(null, 'delivery-modal')">&times;</span>
+            <h2>Данные для доставки 📦</h2>
+            <p class="modal-desc" style="margin-bottom: 20px;">Заполните поля, чтобы мы смогли отправить ваш заказ:</p>
+            
+            <div class="form-group">
+                <label>Имя и Фамилия</label>
+                <input type="text" id="cust-name" class="form-input" placeholder="Иван Иванов">
+            </div>
+            <div class="form-group">
+                <label>Номер телефона</label>
+                <input type="tel" id="cust-phone" class="form-input" placeholder="+48 000 000 000">
+            </div>
+            <div class="form-group">
+                <label>Город и адрес / Пачкомат</label>
+                <input type="text" id="cust-address" class="form-input" placeholder="Варшава, InPost WAW01M">
+            </div>
+
+            <button onclick="submitOrder()" class="btn-add" style="margin-top: 10px;">Подтвердить заказ 🚀</button>
         </div>
     </div>
 
@@ -440,15 +490,20 @@
             const btn = document.getElementById('modal-btn');
             btn.onclick = () => {
                 addToCart(product.id);
-                closeModal();
+                closeModal(null, 'product-modal');
             };
 
             document.getElementById('product-modal').style.display = 'flex';
         }
 
-        function closeModal(event) {
+        function openDeliveryModal() {
+            if (cart.length === 0) return;
+            document.getElementById('delivery-modal').style.display = 'flex';
+        }
+
+        function closeModal(event, modalId) {
             if (!event || event.target.classList.contains('modal-overlay') || event.target.classList.contains('modal-close')) {
-                document.getElementById('product-modal').style.display = 'none';
+                document.getElementById(modalId).style.display = 'none';
             }
         }
 
@@ -475,7 +530,7 @@
 
             if (tg && tg.MainButton) {
                 if (count > 0) {
-                    tg.MainButton.setText(`Оформить заказ (${count}) • ${total} PLN`);
+                    tg.MainButton.setText(`Перейти к оформлению (${count}) • ${total} PLN`);
                     tg.MainButton.setParams({
                         color: '#ffd700',
                         text_color: '#000000'
@@ -496,12 +551,30 @@
             }
         }
 
-        function sendOrder() {
-            if (cart.length === 0) return;
+        function submitOrder() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const address = document.getElementById('cust-address').value.trim();
+
+            if (!name || !phone || !address) {
+                alert('Пожалуйста, заполните все поля для доставки!');
+                return;
+            }
+
+            const orderData = {
+                items: cart,
+                customer: {
+                    name: name,
+                    phone: phone,
+                    address: address
+                },
+                total: cart.reduce((sum, item) => sum + item.price, 0)
+            };
+
             if (tg) {
-                tg.sendData(JSON.stringify(cart));
+                tg.sendData(JSON.stringify(orderData));
             } else {
-                alert(`Заказ сформирован! Товаров: ${cart.length}, Сумма: ${cart.reduce((s, i) => s + i.price, 0)} PLN`);
+                alert(`Заказ сформирован!\nПолучатель: ${name}\nТелефон: ${phone}\nАдрес: ${address}\nСумма: ${orderData.total} PLN`);
             }
         }
 
@@ -512,7 +585,7 @@
                 try {
                     tg.ready();
                     tg.expand();
-                    tg.onEvent('mainButtonClicked', sendOrder);
+                    tg.onEvent('mainButtonClicked', openDeliveryModal);
                 } catch (e) {
                     console.log("Запущено вне Telegram", e);
                 }
