@@ -57,6 +57,13 @@
             text-align: center;
             border: 1px solid rgba(255, 215, 0, 0.2);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .product-card:active {
+            transform: scale(0.98);
+            border-color: #ffd700;
         }
 
         .img-container {
@@ -92,6 +99,10 @@
             margin-bottom: 12px;
             flex-grow: 1;
             font-weight: 400;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .product-card .price {
@@ -166,6 +177,118 @@
         .toast.show {
             transform: translateX(-50%) translateY(0);
         }
+
+        /* Общий стиль для модалок */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #18181f;
+            border: 1px solid #ffd700;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 360px;
+            padding: 24px 20px;
+            position: relative;
+            box-shadow: 0 10px 35px rgba(255, 215, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 24px;
+            color: #888;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .modal-img-container {
+            width: 100%;
+            height: 200px;
+            background: #ffffff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            padding: 12px;
+        }
+
+        .modal-img-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .modal-card h2 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .modal-card .modal-desc {
+            font-size: 13px;
+            color: #a0a0b0;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .modal-card .modal-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffd700;
+            margin-bottom: 16px;
+        }
+
+        /* Приветственное модальное окно */
+        .welcome-card {
+            background: linear-gradient(145deg, #1c1c24, #121217);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+        }
+
+        .welcome-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            color: #c0c0d0;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .creators-tag {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px dashed #ffd700;
+            border-radius: 12px;
+            padding: 8px 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #ffd700;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -181,6 +304,35 @@
 
     <div id="toast" class="toast">
         Спасибо за покупку! 💖(⁠ ⁠•⁠ ⁠¾⁠ ⁠•⁠ ⁠)
+    </div>
+
+    <!-- Модальное окно приветствия -->
+    <div id="welcome-modal" class="modal-overlay" style="display: flex;">
+        <div class="modal-card welcome-card">
+            <h2 class="welcome-title">Приветствуем! ✨</h2>
+            <p class="welcome-text">
+                Добро пожаловать в <b>Chaos Shop</b>!<br>
+                Желаем приятных покупок и отличного настроения.
+            </p>
+            <div class="creators-tag">
+                Made with love by <span>D & N</span> 🖤
+            </div>
+            <button onclick="closeWelcomeModal()" class="btn-add">Войти в магазин ♡</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно просмотра товара -->
+    <div id="product-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-img-container">
+                <img id="modal-img" src="" alt="">
+            </div>
+            <h2 id="modal-title"></h2>
+            <p id="modal-desc" class="modal-desc"></p>
+            <p id="modal-price" class="modal-price"></p>
+            <button id="modal-btn" class="btn-add">Добавить в корзину</button>
+        </div>
     </div>
 
     <script>
@@ -260,16 +412,44 @@
             if (!container) return;
 
             container.innerHTML = products.map(product => `
-                <div class="product-card">
+                <div class="product-card" onclick="openModal(${product.id})">
                     <div class="img-container">
                         <img src="${product.img}" alt="${product.name}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/watermelon.jpg';">
                     </div>
                     <h3>${product.name}</h3>
                     <p class="desc">${product.description}</p>
                     <p class="price">${product.price} PLN</p>
-                    <button onclick="addToCart(${product.id})" class="btn-add">Добавить в корзину</button>
+                    <button onclick="event.stopPropagation(); addToCart(${product.id})" class="btn-add">Добавить в корзину</button>
                 </div>
             `).join('');
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcome-modal').style.display = 'none';
+        }
+
+        function openModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            document.getElementById('modal-img').src = product.img;
+            document.getElementById('modal-title').innerText = product.name;
+            document.getElementById('modal-desc').innerText = product.description;
+            document.getElementById('modal-price').innerText = `${product.price} PLN`;
+            
+            const btn = document.getElementById('modal-btn');
+            btn.onclick = () => {
+                addToCart(product.id);
+                closeModal();
+            };
+
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.classList.contains('modal-overlay') || event.target.classList.contains('modal-close')) {
+                document.getElementById('product-modal').style.display = 'none';
+            }
         }
 
         function showToast() {
@@ -339,7 +519,5 @@
             }
         });
     </script>
-</body>
-</html>
 </body>
 </html>
