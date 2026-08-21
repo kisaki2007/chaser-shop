@@ -1,538 +1,116 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chaos Shop</title>
-    <!-- Google Font (Готический стиль GTA) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-color: #0d0d0d;
-            --card-bg: #161616;
-            --accent-gold: #d4af37;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --border-color: #222222;
-        }
+const tg = window.Telegram?.WebApp;
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+// Данные товаров (пути указывают на корень проекта)
+const products = [
+    {
+        id: 1,
+        name: "Chaser Mint",
+        price: 60,
+        volume: "30ml",
+        img: "mint.jpg",
+        description: "Освежающий, чистый и бодрящий вкус перечной мяты."
+    },
+    {
+        id: 2,
+        name: "Chaser Grape Plus",
+        price: 60,
+        volume: "30ml",
+        img: "grape.jpg",
+        description: "Насыщенный вкус сочного тёмного винограда."
+    },
+    {
+        id: 3,
+        name: "Chaser Pineapple",
+        price: 60,
+        volume: "30ml",
+        img: "pineapple.jpg",
+        description: "Яркий и сладкий тропический ананас."
+    },
+    {
+        id: 4,
+        name: "Chaser Energy Cherry",
+        price: 60,
+        volume: "30ml",
+        img: "energy_cherry.jpg",
+        description: "Микс бодрящего энергетика и спелой вишни."
+    },
+    {
+        id: 5,
+        name: "Chaser Lux Tropic Punch",
+        price: 60,
+        volume: "30ml",
+        img: "tropic_punch.jpg",
+        description: "Тропический пунш: манго и цитрусы."
+    },
+    {
+        id: 6,
+        name: "Chaser Lux Blueberry Mint",
+        price: 60,
+        volume: "30ml",
+        img: "blueberry_mint.jpg",
+        description: "Премиальный микс черники и свежей мяты."
+    },
+    {
+        id: 7,
+        name: "Chaser Triple Raspberry",
+        price: 60,
+        volume: "30ml",
+        img: "triple_raspberry.jpg",
+        description: "Сочетание трех сортов малины: красной, желтой, синей."
+    },
+    {
+        id: 8,
+        name: "Chaser Pink Lemonade",
+        price: 60,
+        volume: "30ml",
+        img: "pink_lemonade.jpg",
+        description: "Розовый лимонад: малина и лимон со льдом."
+    }
+];
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            padding-bottom: 80px;
-        }
+let cart = [];
 
-        header {
-            text-align: center;
-            padding: 16px;
-            background: #000;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-
-        header h1 {
-            font-family: 'UnifrakturMaguntia', cursive, serif;
-            font-size: 26px;
-            letter-spacing: 1px;
-            font-weight: 400;
-            color: var(--accent-gold);
-            text-transform: capitalize;
-        }
-
-        .page {
-            display: none;
-            padding: 16px;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* Catalog Grid */
-        .products-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        .product-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .product-card img {
-            width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            border-radius: 12px;
-            margin-bottom: 12px;
-        }
-
-        .product-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--accent-gold);
-        }
-
-        .product-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--accent-gold);
-        }
-
-        /* Product Detail Page */
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--accent-gold);
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            cursor: pointer;
-        }
-
-        .detail-img {
-            width: 100%;
-            max-height: 260px;
-            object-fit: contain;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            background: var(--card-bg);
-            padding: 10px;
-        }
-
-        .detail-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: var(--accent-gold);
-        }
-
-        .detail-price {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--accent-gold);
-            margin-bottom: 16px;
-        }
-
-        .detail-desc {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 24px;
-            background: var(--card-bg);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        /* Buttons */
-        .btn-gold {
-            background: linear-gradient(135deg, var(--accent-gold), #997b1e);
-            color: #000;
-            border: none;
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        /* Cart Page */
-        .card-block {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #222;
-        }
-
-        .cart-item:last-child {
-            border-bottom: none;
-        }
-
-        .cart-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-qty {
-            background: #252525;
-            color: #fff;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .input-group {
-            margin-bottom: 12px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border: 1px solid #2a2a2a;
-            background: #090909;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .total-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-color);
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        /* Bottom Nav Bar */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: #000;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .nav-item {
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: 600;
-            border: none;
-            background: none;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .nav-item.active {
-            color: var(--accent-gold);
-        }
-
-        .cart-badge {
-            background: var(--accent-gold);
-            color: #000;
-            font-size: 11px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 4px;
-        }
-
-        /* Modal Alert Popup */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.75);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-box {
-            background: var(--card-bg);
-            border: 1px solid var(--accent-gold);
-            border-radius: 16px;
-            padding: 24px 20px;
-            text-align: center;
-            width: 80%;
-            max-width: 320px;
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
-        }
-
-        .modal-box p {
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        .modal-box button {
-            background: var(--accent-gold);
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>Chaos Shop</h1>
-    </header>
-
-    <!-- Page: Catalog -->
-    <div id="page-catalog" class="page active">
-        <div class="products-grid" id="products"></div>
-    </div>
-
-    <!-- Page: Product Detail -->
-    <div id="page-detail" class="page">
-        <button class="back-btn" onclick="showPage('catalog')">← Назад в каталог</button>
-        <img id="detail-img" class="detail-img" src="" alt="">
-        <div id="detail-title" class="detail-title"></div>
-        <div id="detail-price" class="detail-price"></div>
-        <div id="detail-desc" class="detail-desc"></div>
-        <button class="btn-gold" id="detail-add-btn">Добавить в корзину</button>
-    </div>
-
-    <!-- Page: Cart -->
-    <div id="page-cart" class="page">
-        <div class="card-block">
-            <div id="cart-items"></div>
-            <div class="total-row">
-                <span>Итого:</span>
-                <span style="color: var(--accent-gold);" id="total-price">0 PLN</span>
-            </div>
+function renderProducts() {
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    
+    container.innerHTML = products.map(product => `
+        <div class="product-card">
+            <img src="${product.img}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p class="desc">${product.description}</p>
+            <p class="price">${product.price} PLN</p>
+            <button onclick="addToCart(${product.id})">Добавить</button>
         </div>
+    `).join('');
+}
 
-        <div style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">Данные для доставки</div>
-        <div class="card-block">
-            <div class="input-group">
-                <input type="text" id="name" placeholder="Имя и Фамилия">
-            </div>
-            <div class="input-group">
-                <input type="tel" id="phone" placeholder="Номер телефона">
-            </div>
-            <div class="input-group">
-                <input type="text" id="address" placeholder="Город и № отделения / Адрес">
-            </div>
-            <button class="btn-gold" id="checkout-btn" style="margin-top: 8px;">Оформить заказ</button>
-        </div>
-    </div>
+function addToCart(productId) {
+    const item = products.find(p => p.id === productId);
+    if (item) {
+        cart.push(item);
+        updateTelegramMainButton();
+    }
+}
 
-    <!-- Navigation Bar -->
-    <div class="bottom-nav">
-        <button class="nav-item active" id="nav-catalog" onclick="showPage('catalog')">
-            🛍 Каталог
-        </button>
-        <button class="nav-item" id="nav-cart" onclick="showPage('cart')">
-            🛒 Корзина <span class="cart-badge" id="cart-count">0</span>
-        </button>
-    </div>
+function updateTelegramMainButton() {
+    if (!tg) return;
+    if (cart.length > 0) {
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        tg.MainButton.text = `Оформить заказ (${total} PLN)`;
+        tg.MainButton.show();
+    } else {
+        tg.MainButton.hide();
+    }
+}
 
-    <!-- Modal Popup -->
-    <div class="modal-overlay" id="modal-popup">
-        <div class="modal-box">
-            <p id="modal-text">Спасибо за добавление в корзину! 🌸✨</p>
-            <button onclick="closeModal()">ОК</button>
-        </div>
-    </div>
-
-    <script>
-        const tg = window.Telegram.WebApp;
+document.addEventListener('DOMContentLoaded', () => {
+    if (tg) {
+        tg.ready();
         tg.expand();
-
-        const products = [
-            {
-                id: 1,
-                name: "Chaser Energy Raspberry",
-                price: 60,
-                volume: "30ml",
-                img: "https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/raspberry.jpg",
-                description: "Яркий и насыщенный вкус сочной малины с тонизирующими нотками энергетика. Превосходный баланс сладости и кислинки для повседневного парения."
-            },
-            {
-                id: 2,
-                name: "Chaser Watermelon Plus",
-                price: 60,
-                volume: "30ml",
-                img: "https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/watermelon.jpg",
-                description: "Насыщенный и освежающий вкус спелого спелого арбуза с усиленной вкусопередачей. Идеальный выбор для любителей сочных фруктовых ароматов."
-            }
-        ];
-
-        let cart = {};
-
-        function showPage(pageName) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-            if (pageName === 'catalog') {
-                document.getElementById('page-catalog').classList.add('active');
-                document.getElementById('nav-catalog').classList.add('active');
-            } else if (pageName === 'cart') {
-                document.getElementById('page-cart').classList.add('active');
-                document.getElementById('nav-cart').classList.add('active');
-                renderCart();
-            } else if (pageName === 'detail') {
-                document.getElementById('page-detail').classList.add('active');
-            }
-        }
-
-        function renderCatalog() {
-            const container = document.getElementById('products');
-            container.innerHTML = products.map(p => `
-                <div class="product-card" onclick="openDetail(${p.id})">
-                    <img src="${p.img}" alt="${p.name}">
-                    <div class="product-title">${p.name}</div>
-                    <div class="product-price">${p.price} PLN</div>
-                </div>
-            `).join('');
-        }
-
-        function openDetail(id) {
-            const p = products.find(prod => prod.id === id);
-            if (!p) return;
-
-            document.getElementById('detail-img').src = p.img;
-            document.getElementById('detail-title').innerText = `${p.name} (${p.volume})`;
-            document.getElementById('detail-price').innerText = `${p.price} PLN`;
-            document.getElementById('detail-desc').innerText = p.description;
-
-            document.getElementById('detail-add-btn').onclick = () => {
-                addToCart(p.id);
-            };
-
-            showPage('detail');
-        }
-
-        function addToCart(id) {
-            cart[id] = (cart[id] || 0) + 1;
-            updateBadge();
-            showModal("Спасибо за добавление в корзину! 🌸✨");
-        }
-
-        function showModal(text) {
-            document.getElementById('modal-text').innerText = text;
-            document.getElementById('modal-popup').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('modal-popup').style.display = 'none';
-        }
-
-        function changeQty(id, delta) {
-            if (cart[id]) {
-                cart[id] += delta;
-                if (cart[id] <= 0) delete cart[id];
-            }
-            updateBadge();
-            renderCart();
-        }
-
-        function updateBadge() {
-            const totalItems = Object.values(cart).reduce((acc, count) => acc + count, 0);
-            document.getElementById('cart-count').innerText = totalItems;
-        }
-
-        function renderCart() {
-            const container = document.getElementById('cart-items');
-            const totalEl = document.getElementById('total-price');
-            const keys = Object.keys(cart);
-
-            if (keys.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">Ваша корзина пуста</p>';
-                totalEl.innerText = '0 PLN';
-                return;
-            }
-
-            let total = 0;
-            container.innerHTML = keys.map(id => {
-                const product = products.find(p => p.id == id);
-                const count = cart[id];
-                const sum = product.price * count;
-                total += sum;
-                return `
-                    <div class="cart-item">
-                        <div>
-                            <div style="font-weight: 700; font-size: 14px; color: var(--accent-gold);">${product.name}</div>
-                            <div style="color: var(--text-muted); font-size: 12px;">${product.price} PLN × ${count}</div>
-                        </div>
-                        <div class="cart-controls">
-                            <button class="btn-qty" onclick="changeQty(${id}, -1)">-</button>
-                            <span>${count}</span>
-                            <button class="btn-qty" onclick="changeQty(${id}, 1)">+</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            totalEl.innerText = `${total} PLN`;
-        }
-
-        document.getElementById('checkout-btn').addEventListener('click', () => {
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-
-            if (Object.keys(cart).length === 0) {
-                alert("Добавьте товары в корзину!");
-                return;
-            }
-            if (!name || !phone || !address) {
-                alert("Пожалуйста, заполните данные для доставки!");
-                return;
-            }
-
-            const items = Object.keys(cart).map(id => {
-                const p = products.find(prod => prod.id == id);
-                return { name: p.name, count: cart[id], price: p.price };
-            });
-
-            const orderData = {
-                customer: { name, phone, address },
-                items: items,
-                total: items.reduce((acc, item) => acc + (item.price * item.count), 0),
-                currency: "PLN"
-            };
-
-            tg.sendData(JSON.stringify(orderData));
+        tg.onEvent('mainButtonClicked', () => {
+            tg.sendData(JSON.stringify(cart));
         });
-
-        renderCatalog();
-    </script>
-</body>
-</html>
+    }
+    renderProducts();
+});
