@@ -2,187 +2,246 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chaser Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --accent-color: #d4af37; /* Black & Gold theme */
-            --text-color: #ffffff;
-            --text-muted: #aaaaaa;
+            --bg-color: #0d0d0d;
+            --card-bg: #161616;
+            --accent-gold: #d4af37;
+            --accent-gold-hover: #b5932a;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border-color: #222222;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 15px;
-            padding-bottom: 90px;
+            color: var(--text-main);
+            padding: 20px 16px 100px 16px;
         }
 
-        h1, h2 {
+        header {
             text-align: center;
-            color: var(--accent-color);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 20px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-transform: uppercase;
         }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
 
         .product-card {
             background-color: var(--card-bg);
-            border: 1px solid #2a2a2a;
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            justify: space-between;
+            align-items: center;
+            text-align: center;
         }
 
         .product-card img {
             width: 100%;
-            height: 110px;
+            max-height: 220px;
             object-fit: contain;
-            border-radius: 8px;
-            background-color: #000;
+            border-radius: 12px;
+            margin-bottom: 14px;
         }
 
         .product-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin: 8px 0 4px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-main);
         }
 
         .product-price {
-            color: var(--accent-color);
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 14px;
         }
 
-        button {
-            background: linear-gradient(135deg, #d4af37, #aa820a);
-            color: #000;
+        .btn-add {
+            background: linear-gradient(135deg, var(--accent-gold), #997b1e);
+            color: #000000;
             border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
             width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
 
-        /* Корзина и форма */
-        .cart-section, .form-section {
+        .btn-add:active {
+            opacity: 0.8;
+        }
+
+        /* Minimalist Cart & Form */
+        .section-title {
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 30px 0 12px 4px;
+        }
+
+        .card-block {
             background-color: var(--card-bg);
-            border: 1px solid var(--accent-color);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
         }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #2a2a2a;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
             font-size: 14px;
         }
 
-        .cart-controls button {
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-qty {
+            background: #252525;
+            color: #fff;
+            border: none;
             width: 28px;
             height: 28px;
-            padding: 0;
-            margin: 0 4px;
-            display: inline-block;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
         }
 
         .input-group {
             margin-bottom: 12px;
         }
 
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
+        .input-group:last-child {
+            margin-bottom: 0;
         }
 
         .input-group input {
             width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #000;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #2a2a2a;
+            background: #090909;
             color: #fff;
-            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            font-size: 16px;
+            font-weight: 700;
         }
 
         .total-price {
+            color: var(--accent-gold);
             font-size: 18px;
-            font-weight: bold;
-            color: var(--accent-color);
-            text-align: right;
-            margin-top: 10px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent-gold), #997b1e);
+            color: #000;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            margin-top: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <h1>CHASER STORE</h1>
+    <header>
+        <h1>CHASER STORE</h1>
+    </header>
 
     <div class="products-grid" id="products"></div>
 
-    <div class="cart-section">
-        <h2>Корзина</h2>
+    <div class="section-title">Корзина</div>
+    <div class="card-block">
         <div id="cart-items">
-            <p style="text-align: center; color: var(--text-muted);">Корзина пуста</p>
+            <p style="text-align: center; color: var(--text-muted); font-size: 14px;">Корзина пуста</p>
         </div>
-        <div class="total-price" id="total-price">Итого: 0 ₴</div>
+        <div class="total-row">
+            <span>Итого:</span>
+            <span class="total-price" id="total-price">0 PLN</span>
+        </div>
     </div>
 
-    <div class="form-section">
-        <h2>Данные для доставки</h2>
+    <div class="section-title">Данные для доставки</div>
+    <div class="card-block">
         <div class="input-group">
-            <label for="name">Имя и Фамилия</label>
-            <input type="text" id="name" placeholder="Иван Иванов">
+            <input type="text" id="name" placeholder="Имя и Фамилия">
         </div>
         <div class="input-group">
-            <label for="phone">Номер телефона</label>
-            <input type="tel" id="phone" placeholder="+380XXXXXXXXX">
+            <input type="tel" id="phone" placeholder="Номер телефона">
         </div>
         <div class="input-group">
-            <label for="address">Город и № отделения Новой Почты</label>
-            <input type="text" id="address" placeholder="Киев, Отделение №1">
+            <input type="text" id="address" placeholder="Город и № отделения / Адрес">
         </div>
-        <button id="checkout-btn" style="margin-top: 10px; padding: 12px; font-size: 16px;">Оформить заказ</button>
+        <button class="btn-submit" id="checkout-btn">Оформить заказ</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Продукты с прямой ссылкой на изображения
+        // ⚠️ ЗАМЕНИТЕ ссылку на изображение из вашего репозитория или хостинга
         const products = [
             {
                 id: 1,
-                name: "Chaser Black Raspberry",
-                price: 300,
-                // Используйте прямые HTTPS ссылки на изображения
-                img: "https://images.unsplash.com/photo-1577069861033-55d04ace4ef0?w=300" 
-            },
-            {
-                id: 2,
-                name: "Chaser Triple Watermelon",
-                price: 300,
-                img: "https://images.unsplash.com/photo-1589984662646-e7b2e4962f18?w=300"
+                name: "Chaser Balance - Energy Raspberry (30ml)",
+                price: 60,
+                img: "img/energy_raspberry.jpg" // Укажите путь к сохраненной картинке без банки слева
             }
         ];
 
@@ -192,10 +251,10 @@
             const container = document.getElementById('products');
             container.innerHTML = products.map(p => `
                 <div class="product-card">
-                    <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/150/000000/FFFFFF?text=No+Image'">
+                    <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300/161616/d4af37?text=Chaser+Raspberry'">
                     <div class="product-title">${p.name}</div>
-                    <div class="product-price">${p.price} ₴</div>
-                    <button onclick="addToCart(${p.id})">В корзину</button>
+                    <div class="product-price">${p.price} PLN</div>
+                    <button class="btn-add" onclick="addToCart(${p.id})">Добавить в корзину</button>
                 </div>
             `).join('');
         }
@@ -219,8 +278,8 @@
             const keys = Object.keys(cart);
 
             if (keys.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">Корзина пуста</p>';
-                totalEl.innerText = 'Итого: 0 ₴';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">Корзина пуста</p>';
+                totalEl.innerText = '0 PLN';
                 return;
             }
 
@@ -232,17 +291,20 @@
                 total += sum;
                 return `
                     <div class="cart-item">
-                        <div>${product.name} x ${count}</div>
+                        <div>
+                            <div>${product.name}</div>
+                            <div style="color: var(--text-muted); font-size: 12px;">${product.price} PLN × ${count}</div>
+                        </div>
                         <div class="cart-controls">
-                            <span>${sum} ₴</span>
-                            <button onclick="changeQty(${id}, -1)">-</button>
-                            <button onclick="changeQty(${id}, 1)">+</button>
+                            <button class="btn-qty" onclick="changeQty(${id}, -1)">-</button>
+                            <span>${count}</span>
+                            <button class="btn-qty" onclick="changeQty(${id}, 1)">+</button>
                         </div>
                     </div>
                 `;
             }).join('');
 
-            totalEl.innerText = `Итого: ${total} ₴`;
+            totalEl.innerText = `${total} PLN`;
         }
 
         document.getElementById('checkout-btn').addEventListener('click', () => {
@@ -255,11 +317,10 @@
                 return;
             }
             if (!name || !phone || !address) {
-                alert("Пожалуйста, заполните все поля формы доставки!");
+                alert("Пожалуйста, заполните все поля доставки.");
                 return;
             }
 
-            // Формируем структуру заказа
             const items = Object.keys(cart).map(id => {
                 const p = products.find(prod => prod.id == id);
                 return { name: p.name, count: cart[id], price: p.price };
@@ -268,14 +329,14 @@
             const orderData = {
                 customer: { name, phone, address },
                 items: items,
-                total: items.reduce((acc, item) => acc + (item.price * item.count), 0)
+                total: items.reduce((acc, item) => acc + (item.price * item.count), 0),
+                currency: "PLN"
             };
 
-            // Отправляем данные обратно в Telegram Bot
             tg.sendData(JSON.stringify(orderData));
         });
 
         renderProducts();
     </script>
 </body>
-</html></html>
+</html>
