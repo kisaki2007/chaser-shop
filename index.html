@@ -10,7 +10,6 @@
             --bg-color: #0d0d0d;
             --card-bg: #161616;
             --accent-gold: #d4af37;
-            --accent-gold-hover: #b5932a;
             --text-main: #ffffff;
             --text-muted: #888888;
             --border-color: #222222;
@@ -27,26 +26,41 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            padding: 20px 16px 100px 16px;
+            padding-bottom: 80px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 24px;
+            padding: 16px;
+            background: #000;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         header h1 {
-            font-size: 20px;
-            letter-spacing: 3px;
+            font-size: 18px;
+            letter-spacing: 2px;
             font-weight: 700;
             color: var(--accent-gold);
             text-transform: uppercase;
         }
 
+        .page {
+            display: none;
+            padding: 16px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Catalog Grid */
         .products-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 20px;
+            gap: 16px;
         }
 
         .product-card {
@@ -54,74 +68,103 @@
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             text-align: center;
+            cursor: pointer;
         }
 
         .product-card img {
             width: 100%;
-            max-height: 240px;
+            max-height: 200px;
             object-fit: contain;
             border-radius: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .product-title {
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 6px;
-            color: var(--text-main);
         }
 
         .product-price {
             font-size: 18px;
             font-weight: 700;
             color: var(--accent-gold);
-            margin-bottom: 14px;
         }
 
-        .btn-add {
+        /* Product Detail Page */
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--accent-gold);
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            cursor: pointer;
+        }
+
+        .detail-img {
+            width: 100%;
+            max-height: 260px;
+            object-fit: contain;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            background: var(--card-bg);
+            padding: 10px;
+        }
+
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .detail-price {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 16px;
+        }
+
+        .detail-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Buttons */
+        .btn-gold {
             background: linear-gradient(135deg, var(--accent-gold), #997b1e);
-            color: #000000;
+            color: #000;
             border: none;
             width: 100%;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 12px;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
-            transition: opacity 0.2s;
         }
 
-        .btn-add:active {
-            opacity: 0.8;
-        }
-
-        /* Minimalist Cart & Form */
-        .section-title {
-            font-size: 14px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin: 30px 0 12px 4px;
-        }
-
+        /* Cart Page */
         .card-block {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 16px;
+            margin-bottom: 20px;
         }
 
         .cart-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
+            padding: 12px 0;
             border-bottom: 1px solid #222;
-            font-size: 14px;
         }
 
         .cart-item:last-child {
@@ -131,7 +174,7 @@
         .cart-controls {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn-qty {
@@ -149,10 +192,6 @@
             margin-bottom: 12px;
         }
 
-        .input-group:last-child {
-            margin-bottom: 0;
-        }
-
         .input-group input {
             width: 100%;
             padding: 12px 14px;
@@ -164,37 +203,57 @@
             outline: none;
         }
 
-        .input-group input:focus {
-            border-color: var(--accent-gold);
-        }
-
         .total-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 14px;
+            margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid var(--border-color);
             font-size: 16px;
             font-weight: 700;
         }
 
-        .total-price {
-            color: var(--accent-gold);
-            font-size: 18px;
+        /* Bottom Nav Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #000;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
         }
 
-        .btn-submit {
-            background: linear-gradient(135deg, var(--accent-gold), #997b1e);
-            color: #000;
+        .nav-item {
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
             border: none;
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 15px;
-            margin-top: 16px;
+            background: none;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: var(--accent-gold);
+        }
+
+        .cart-badge {
+            background: var(--accent-gold);
+            color: #000;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 4px;
         }
     </style>
 </head>
@@ -204,64 +263,127 @@
         <h1>CHASER STORE</h1>
     </header>
 
-    <div class="products-grid" id="products"></div>
+    <!-- Page: Catalog -->
+    <div id="page-catalog" class="page active">
+        <div class="products-grid" id="products"></div>
+    </div>
 
-    <div class="section-title">Корзина</div>
-    <div class="card-block">
-        <div id="cart-items">
-            <p style="text-align: center; color: var(--text-muted); font-size: 14px;">Корзина пуста</p>
+    <!-- Page: Product Detail -->
+    <div id="page-detail" class="page">
+        <button class="back-btn" onclick="showPage('catalog')">← Назад в каталог</button>
+        <img id="detail-img" class="detail-img" src="" alt="">
+        <div id="detail-title" class="detail-title"></div>
+        <div id="detail-price" class="detail-price"></div>
+        <div id="detail-desc" class="detail-desc"></div>
+        <button class="btn-gold" id="detail-add-btn">Добавить в корзину</button>
+    </div>
+
+    <!-- Page: Cart -->
+    <div id="page-cart" class="page">
+        <div class="card-block">
+            <div id="cart-items"></div>
+            <div class="total-row">
+                <span>Итого:</span>
+                <span style="color: var(--accent-gold);" id="total-price">0 PLN</span>
+            </div>
         </div>
-        <div class="total-row">
-            <span>Итого:</span>
-            <span class="total-price" id="total-price">0 PLN</span>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; font-weight: 600;">Данные для доставки</div>
+        <div class="card-block">
+            <div class="input-group">
+                <input type="text" id="name" placeholder="Имя и Фамилия">
+            </div>
+            <div class="input-group">
+                <input type="tel" id="phone" placeholder="Номер телефона">
+            </div>
+            <div class="input-group">
+                <input type="text" id="address" placeholder="Город и № отделения / Адрес">
+            </div>
+            <button class="btn-gold" id="checkout-btn" style="margin-top: 8px;">Оформить заказ</button>
         </div>
     </div>
 
-    <div class="section-title">Данные для доставки</div>
-    <div class="card-block">
-        <div class="input-group">
-            <input type="text" id="name" placeholder="Имя и Фамилия">
-        </div>
-        <div class="input-group">
-            <input type="tel" id="phone" placeholder="Номер телефона">
-        </div>
-        <div class="input-group">
-            <input type="text" id="address" placeholder="Город и № отделения / Адрес">
-        </div>
-        <button class="btn-submit" id="checkout-btn">Оформить заказ</button>
+    <!-- Navigation Bar -->
+    <div class="bottom-nav">
+        <button class="nav-item active" id="nav-catalog" onclick="showPage('catalog')">
+            🛍 Каталог
+        </button>
+        <button class="nav-item" id="nav-cart" onclick="showPage('cart')">
+            🛒 Корзина <span class="cart-badge" id="cart-count">0</span>
+        </button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Продукты со 100% рабочей прямой ссылкой из вашего GitHub
+        // База товаров
         const products = [
             {
                 id: 1,
-                name: "Chaser Balance - Energy Raspberry (30ml)",
+                name: "Chaser Balance - Energy Raspberry",
                 price: 60,
-                img: "https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/raspberry.jpg"
+                volume: "30ml",
+                img: "https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/raspberry.jpg",
+                description: "Яркий и насыщенный вкус сочной малины с тонизирующими нотками энергетика. Превосходный баланс сладости и кислинки для повседневного парения."
             }
         ];
 
         let cart = {};
+        let currentProductId = null;
 
-        function renderProducts() {
+        // Переключение страниц
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+            if (pageName === 'catalog') {
+                document.getElementById('page-catalog').classList.add('active');
+                document.getElementById('nav-catalog').classList.add('active');
+            } else if (pageName === 'cart') {
+                document.getElementById('page-cart').classList.add('active');
+                document.getElementById('nav-cart').classList.add('active');
+                renderCart();
+            } else if (pageName === 'detail') {
+                document.getElementById('page-detail').classList.add('active');
+            }
+        }
+
+        // Рендер каталога
+        function renderCatalog() {
             const container = document.getElementById('products');
             container.innerHTML = products.map(p => `
-                <div class="product-card">
-                    <img src="${p.img}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300/161616/d4af37?text=Chaser+Raspberry'">
+                <div class="product-card" onclick="openDetail(${p.id})">
+                    <img src="${p.img}" alt="${p.name}">
                     <div class="product-title">${p.name}</div>
                     <div class="product-price">${p.price} PLN</div>
-                    <button class="btn-add" onclick="addToCart(${p.id})">Добавить в корзину</button>
                 </div>
             `).join('');
         }
 
+        // Открытие детализации товара
+        function openDetail(id) {
+            const p = products.find(prod => prod.id === id);
+            if (!p) return;
+
+            currentProductId = id;
+            document.getElementById('detail-img').src = p.img;
+            document.getElementById('detail-title').innerText = `${p.name} (${p.volume})`;
+            document.getElementById('detail-price').innerText = `${p.price} PLN`;
+            document.getElementById('detail-desc').innerText = p.description;
+
+            document.getElementById('detail-add-btn').onclick = () => {
+                addToCart(p.id);
+                alert("Товар добавлен в корзину!");
+            };
+
+            showPage('detail');
+        }
+
+        // Логика корзины
         function addToCart(id) {
             cart[id] = (cart[id] || 0) + 1;
-            updateCartUI();
+            updateBadge();
         }
 
         function changeQty(id, delta) {
@@ -269,16 +391,22 @@
                 cart[id] += delta;
                 if (cart[id] <= 0) delete cart[id];
             }
-            updateCartUI();
+            updateBadge();
+            renderCart();
         }
 
-        function updateCartUI() {
+        function updateBadge() {
+            const totalItems = Object.values(cart).reduce((acc, count) => acc + count, 0);
+            document.getElementById('cart-count').innerText = totalItems;
+        }
+
+        function renderCart() {
             const container = document.getElementById('cart-items');
             const totalEl = document.getElementById('total-price');
             const keys = Object.keys(cart);
 
             if (keys.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">Корзина пуста</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 14px;">Ваша корзина пуста</p>';
                 totalEl.innerText = '0 PLN';
                 return;
             }
@@ -292,7 +420,7 @@
                 return `
                     <div class="cart-item">
                         <div>
-                            <div>${product.name}</div>
+                            <div style="font-weight: 600; font-size: 14px;">${product.name}</div>
                             <div style="color: var(--text-muted); font-size: 12px;">${product.price} PLN × ${count}</div>
                         </div>
                         <div class="cart-controls">
@@ -307,17 +435,18 @@
             totalEl.innerText = `${total} PLN`;
         }
 
+        // Отправка заказа
         document.getElementById('checkout-btn').addEventListener('click', () => {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const address = document.getElementById('address').value.trim();
 
             if (Object.keys(cart).length === 0) {
-                alert("Ваша корзина пуста!");
+                alert("Добавьте товары в корзину!");
                 return;
             }
             if (!name || !phone || !address) {
-                alert("Пожалуйста, заполните все поля доставки.");
+                alert("Пожалуйста, заполните данные для доставки!");
                 return;
             }
 
@@ -336,7 +465,7 @@
             tg.sendData(JSON.stringify(orderData));
         });
 
-        renderProducts();
+        renderCatalog();
     </script>
 </body>
 </html>
