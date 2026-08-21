@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chaos Shop</title>
+    <!-- Google Font (Готический стиль GTA) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -40,11 +44,12 @@
         }
 
         header h1 {
-            font-size: 18px;
-            letter-spacing: 2px;
-            font-weight: 700;
+            font-family: 'UnifrakturMaguntia', cursive, serif;
+            font-size: 26px;
+            letter-spacing: 1px;
+            font-weight: 400;
             color: var(--accent-gold);
-            text-transform: uppercase;
+            text-transform: capitalize;
         }
 
         .page {
@@ -84,7 +89,7 @@
             font-size: 16px;
             font-weight: 700;
             margin-bottom: 6px;
-            color: var(--accent-gold); /* Золотой цвет названия */
+            color: var(--accent-gold);
         }
 
         .product-price {
@@ -118,7 +123,7 @@
             font-size: 20px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: var(--accent-gold); /* Золотой цвет названия в детализации */
+            color: var(--accent-gold);
         }
 
         .detail-price {
@@ -305,7 +310,7 @@
 <body>
 
     <header>
-        <h1>CHAOS SHOP</h1>
+        <h1>Chaos Shop</h1>
     </header>
 
     <!-- Page: Catalog -->
@@ -370,7 +375,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // База товаров (Название изменено на Chaser)
         const products = [
             {
                 id: 1,
@@ -384,7 +388,6 @@
 
         let cart = {};
 
-        // Переключение страниц
         function showPage(pageName) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -401,7 +404,6 @@
             }
         }
 
-        // Рендер каталога
         function renderCatalog() {
             const container = document.getElementById('products');
             container.innerHTML = products.map(p => `
@@ -413,7 +415,6 @@
             `).join('');
         }
 
-        // Открытие детализации товара
         function openDetail(id) {
             const p = products.find(prod => prod.id === id);
             if (!p) return;
@@ -430,7 +431,6 @@
             showPage('detail');
         }
 
-        // Логика корзины и показ всплывающего окна
         function addToCart(id) {
             cart[id] = (cart[id] || 0) + 1;
             updateBadge();
@@ -495,7 +495,6 @@
             totalEl.innerText = `${total} PLN`;
         }
 
-        // Отправка заказа
         document.getElementById('checkout-btn').addEventListener('click', () => {
             const name = document.getElementById('name').value.trim();
             const phone = document.getElementById('phone').value.trim();
