@@ -3,54 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaser Shop</title>
+    <title>Chaser VIP Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: #121216;
+            background-color: #0b0b0e;
             color: #ffffff;
-            padding: 20px 16px;
+            padding: 20px 16px 90px 16px;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 24px;
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
         }
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 16px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
         .product-card {
-            background: #1c1c24;
-            border-radius: 16px;
-            padding: 16px 12px;
+            background: linear-gradient(145deg, #16161e, #111116);
+            border-radius: 18px;
+            padding: 14px 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.2s ease;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
 
         .img-container {
             width: 100%;
-            height: 140px;
+            height: 130px;
             background: #ffffff;
             border-radius: 12px;
             display: flex;
@@ -58,7 +66,7 @@
             justify-content: center;
             margin-bottom: 12px;
             padding: 8px;
-            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
         }
 
         .product-card img {
@@ -68,43 +76,69 @@
         }
 
         .product-card h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             margin-bottom: 6px;
+            color: #ffffff;
             line-height: 1.2;
         }
 
         .product-card .desc {
             font-size: 11px;
-            color: #9a9aab;
-            line-height: 1.3;
+            color: #a0a0b0;
+            line-height: 1.4;
             margin-bottom: 12px;
             flex-grow: 1;
+            font-weight: 400;
         }
 
         .product-card .price {
-            font-weight: 700;
-            color: #00e676;
-            font-size: 15px;
+            font-weight: 800;
+            color: #ffd700;
+            font-size: 16px;
             margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
         }
 
         .btn-add {
             width: 100%;
-            background-color: #0088cc;
-            color: #ffffff;
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #000000;
             border: none;
             padding: 10px 0;
             border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.25);
         }
 
         .btn-add:active {
-            background-color: #006699;
-            transform: scale(0.98);
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+
+        /* Нижня кнопка кошика (для звичайного браузера) */
+        .cart-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 400px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            color: #000000;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 15px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+            cursor: pointer;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -113,6 +147,12 @@
     <h1>Каталог Chaser</h1>
 
     <div id="products-container" class="products-grid"></div>
+
+    <!-- Резервна кнопка корзины если открыто вне Telegram -->
+    <div id="cart-bar" class="cart-bar" onclick="sendOrder()">
+        <span>Оформить заказ (<span id="cart-count">0</span>)</span>
+        <span id="cart-total">0 PLN</span>
+    </div>
 
     <script>
         const tg = window.Telegram?.WebApp || null;
@@ -124,15 +164,15 @@
                 price: 60,
                 volume: "30ml",
                 img: "mint.jpg",
-                description: "Освежающий, чистый и бодрящий вкус перечной мяты."
+                description: "Освежающий, чистый и бодрящий вкус перечной мяты. Идеальная прохлада для ежедневного парения."
             },
             {
                 id: 2,
                 name: "Chaser Grape Plus",
                 price: 60,
                 volume: "30ml",
-                img: "grape_plus.jpg", // Если в папке файл называется grape.jpg — переименуй тут или на GitHub
-                description: "Насыщенный вкус сочного тёмного винограда."
+                img: "https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/grape_plus.jpg",
+                description: "Насыщенный вкус сочного тёмного винограда с усиленной ароматикой. Настоящая ягодная феерия."
             },
             {
                 id: 3,
@@ -140,7 +180,7 @@
                 price: 60,
                 volume: "30ml",
                 img: "pineapple.jpg",
-                description: "Яркий и сладкий тропический ананас."
+                description: "Яркий и сладкий тропический ананас с лёгкой приятной кислинкой сочной мякоти."
             },
             {
                 id: 4,
@@ -148,7 +188,7 @@
                 price: 60,
                 volume: "30ml",
                 img: "energy_cherry.jpg",
-                description: "Микс бодрящего энергетика и спелой вишни."
+                description: "Мощный тонизирующий микс бодрящего энергетика и спелой вишни."
             },
             {
                 id: 5,
@@ -156,7 +196,7 @@
                 price: 60,
                 volume: "30ml",
                 img: "tropic_punch.jpg",
-                description: "Тропический пунш: манго и цитрусы."
+                description: "Экзотический тропический пунш из линейки Lux Balance — гармоничное сочетание сочного манго и спелых цитрусов."
             },
             {
                 id: 6,
@@ -164,7 +204,7 @@
                 price: 60,
                 volume: "30ml",
                 img: "blueberry_mint.jpg",
-                description: "Премиальный микс черники и свежей мяты."
+                description: "Премиальный микс спелой лесной черники и прохладных листочков свежей мяты."
             },
             {
                 id: 7,
@@ -172,7 +212,7 @@
                 price: 60,
                 volume: "30ml",
                 img: "triple_raspberry.jpg",
-                description: "Сочетание трех сортов малины."
+                description: "Уникальное сочетание трёх сортов малины: красной, жёлтой и синей."
             },
             {
                 id: 8,
@@ -180,7 +220,7 @@
                 price: 60,
                 volume: "30ml",
                 img: "pink_lemonade.jpg",
-                description: "Розовый лимонад: малина и лимон со льдом."
+                description: "Классический розовый лимонад из сладкой малины и освежающего лимона со льдом."
             }
         ];
 
@@ -193,12 +233,12 @@
             container.innerHTML = products.map(product => `
                 <div class="product-card">
                     <div class="img-container">
-                        <img src="${product.img}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                        <img src="${product.img}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/150/111116/ffd700?text=Chaser'">
                     </div>
                     <h3>${product.name}</h3>
                     <p class="desc">${product.description}</p>
                     <p class="price">${product.price} PLN</p>
-                    <button onclick="addToCart(${product.id})" class="btn-add">Добавить</button>
+                    <button onclick="addToCart(${product.id})" class="btn-add">Добавить в корзину</button>
                 </div>
             `).join('');
         }
@@ -207,19 +247,45 @@
             const item = products.find(p => p.id === productId);
             if (item) {
                 cart.push(item);
-                updateTelegramMainButton();
+                updateCartUI();
             }
         }
 
-        function updateTelegramMainButton() {
-            if (!tg || !tg.MainButton) return;
-            
-            if (cart.length > 0) {
-                const total = cart.reduce((sum, item) => sum + item.price, 0);
-                tg.MainButton.setText(`Оформить заказ (${total} PLN)`);
-                tg.MainButton.show();
+        function updateCartUI() {
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const count = cart.length;
+
+            // Если запущен внутри Telegram
+            if (tg && tg.MainButton) {
+                if (count > 0) {
+                    tg.MainButton.setText(`Оформить заказ (${count}) • ${total} PLN`);
+                    tg.MainButton.setParams({
+                        color: '#ffd700',
+                        text_color: '#000000'
+                    });
+                    tg.MainButton.show();
+                } else {
+                    tg.MainButton.hide();
+                }
             } else {
-                tg.MainButton.hide();
+                // Если открыто в обычном браузере
+                const cartBar = document.getElementById('cart-bar');
+                if (count > 0) {
+                    document.getElementById('cart-count').innerText = count;
+                    document.getElementById('cart-total').innerText = `${total} PLN`;
+                    cartBar.style.display = 'flex';
+                } else {
+                    cartBar.style.display = 'none';
+                }
+            }
+        }
+
+        function sendOrder() {
+            if (cart.length === 0) return;
+            if (tg) {
+                tg.sendData(JSON.stringify(cart));
+            } else {
+                alert(`Заказ сформирован! Товаров: ${cart.length}, Сумма: ${cart.reduce((s, i) => s + i.price, 0)} PLN`);
             }
         }
 
@@ -230,9 +296,7 @@
                 try {
                     tg.ready();
                     tg.expand();
-                    tg.onEvent('mainButtonClicked', () => {
-                        tg.sendData(JSON.stringify(cart));
-                    });
+                    tg.onEvent('mainButtonClicked', sendOrder);
                 } catch (e) {
                     console.log("Запущено вне Telegram", e);
                 }
