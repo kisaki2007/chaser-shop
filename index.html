@@ -20,8 +20,7 @@
             color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 16px;
-            padding-bottom: 90px; /* Отступ под зафиксированную корзину */
+            padding: 16px 16px 80px 16px;
         }
 
         h1 {
@@ -50,37 +49,21 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
-        .card-title {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
+        .card-title { font-weight: bold; font-size: 14px; margin-bottom: 4px; }
+        .card-desc { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+        .card-price { font-size: 15px; color: var(--gold-primary); font-weight: bold; margin-bottom: 10px; }
 
-        .card-desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .card-price {
-            font-size: 15px;
-            color: var(--gold-primary);
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        /* Кнопки управления количеством */
-        .controls {
+        .counter {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05);
+            background: #262626;
             border-radius: 6px;
             padding: 2px;
         }
 
-        .btn-small {
-            background: var(--gold-gradient);
+        .counter-btn {
+            background: var(--gold-primary);
             color: #000;
             border: none;
             width: 28px;
@@ -91,62 +74,40 @@
             cursor: pointer;
         }
 
-        .count {
-            font-weight: bold;
-            font-size: 14px;
-        }
+        .counter-val { font-size: 14px; font-weight: bold; }
 
-        .btn-add {
-            background: var(--gold-gradient);
-            color: #000;
-            border: none;
-            padding: 8px 0;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* Панель корзины снизу */
+        /* Фиксированная корзина снизу */
         .cart-bar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: #141414;
-            border-top: 1px solid var(--gold-primary);
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
             padding: 12px 16px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 -5px 20px rgba(212, 175, 55, 0.15);
-        }
-
-        .cart-info {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
         }
 
-        .cart-total {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--gold-primary);
-        }
+        .cart-info { display: flex; flex-direction: column; }
+        .cart-total { color: var(--gold-primary); font-weight: bold; font-size: 16px; }
+        .cart-count { color: var(--text-muted); font-size: 12px; }
 
-        .cart-count {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .btn-checkout {
+        .checkout-btn {
             background: var(--gold-gradient);
             color: #000;
             border: none;
             padding: 10px 20px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 14px;
             cursor: pointer;
+        }
+
+        .checkout-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -156,119 +117,92 @@
 
     <div class="products-grid" id="products"></div>
 
-    <!-- Фиксированная панель корзины -->
-    <div class="cart-bar" id="cartBar">
+    <div class="cart-bar">
         <div class="cart-info">
-            <span class="cart-total" id="totalPrice">0 ₽</span>
-            <span class="cart-count" id="totalCount">0 товаров</span>
+            <span class="cart-total" id="total-price">0 ₽</span>
+            <span class="cart-count" id="total-count">Товаров: 0</span>
         </div>
-        <button class="btn-checkout" onclick="checkout()">Оформить заказ</button>
+        <button class="checkout-btn" id="pay-btn" disabled onclick="submitOrder()">Заказать</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Список товаров
-        const productsData = [
-            { id: 1, name: 'Mango Ice 30ml', price: 850, desc: 'Сочный манго с кулером' },
-            { id: 2, name: 'Berry Mix 30ml', price: 850, desc: 'Лесные ягоды' },
-            { id: 3, name: 'Tobacco Gold 30ml', price: 900, desc: 'Классический табак' },
-            { id: 4, name: 'Melon Mint 30ml', price: 850, desc: 'Дыня с мятой' }
+        const products = [
+            { id: 1, name: "Mango Ice 30ml", desc: "Манго с кулером", price: 850 },
+            { id: 2, name: "Berry Mix 30ml", desc: "Лесные ягоды", price: 850 },
+            { id: 3, name: "Tobacco Gold 30ml", desc: "Классический табак", price: 900 },
+            { id: 4, name: "Grape Mint 30ml", desc: "Виноград и мята", price: 850 }
         ];
 
-        // Состояние корзины: { productId: quantity }
-        const cart = {};
+        let cart = {};
 
         function renderProducts() {
             const container = document.getElementById('products');
-            container.innerHTML = '';
-
-            productsData.forEach(p => {
-                const count = cart[p.id] || 0;
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
+            container.innerHTML = products.map(p => `
+                <div class="card">
                     <div>
                         <div class="card-title">${p.name}</div>
                         <div class="card-desc">${p.desc}</div>
                     </div>
                     <div>
                         <div class="card-price">${p.price} ₽</div>
-                        ${count === 0 ? 
-                            `<button class="btn-add" onclick="updateCount(${p.id}, 1)">В корзину</button>` :
-                            `<div class="controls">
-                                <button class="btn-small" onclick="updateCount(${p.id}, -1)">-</button>
-                                <span class="count">${count}</span>
-                                <button class="btn-small" onclick="updateCount(${p.id}, 1)">+</button>
-                            </div>`
-                        }
+                        <div class="counter">
+                            <button class="counter-btn" onclick="updateCart(${p.id}, -1)">-</button>
+                            <span class="counter-val" id="qty-${p.id}">0</span>
+                            <button class="counter-btn" onclick="updateCart(${p.id}, 1)">+</button>
+                        </div>
                     </div>
-                `;
-                container.appendChild(card);
-            });
-
-            updateCartBar();
+                </div>
+            `).join('');
         }
 
-        function updateCount(id, delta) {
-            const current = cart[id] || 0;
-            const next = current + delta;
-            if (next <= 0) {
-                delete cart[id];
-            } else {
-                cart[id] = next;
-            }
-            renderProducts();
+        function updateCart(productId, change) {
+            cart[productId] = (cart[productId] || 0) + change;
+            if (cart[productId] <= 0) delete cart[productId];
+            
+            document.getElementById(`qty-${productId}`).innerText = cart[productId] || 0;
+            updateCartSummary();
         }
 
-        function updateCartBar() {
-            let totalItems = 0;
-            let totalPrice = 0;
+        function updateCartSummary() {
+            let total = 0;
+            let count = 0;
 
-            for (const [id, qty] of Object.entries(cart)) {
-                const product = productsData.find(p => p.id == id);
-                if (product) {
-                    totalItems += qty;
-                    totalPrice += product.price * qty;
-                }
+            for (const id in cart) {
+                const item = products.find(p => p.id == id);
+                total += item.price * cart[id];
+                count += cart[id];
             }
 
-            const cartBar = document.getElementById('cartBar');
-            if (totalItems > 0) {
-                cartBar.style.display = 'flex';
-                document.getElementById('totalPrice').innerText = `${totalPrice} ₽`;
-                document.getElementById('totalCount').innerText = `${totalItems} шт.`;
-            } else {
-                cartBar.style.display = 'none';
-            }
+            document.getElementById('total-price').innerText = `${total} ₽`;
+            document.getElementById('total-count').innerText = `Товаров: ${count}`;
+            document.getElementById('pay-btn').disabled = count === 0;
         }
 
-        function checkout() {
-            const items = [];
-            let totalPrice = 0;
+        function submitOrder() {
+            const orderItems = [];
+            let total = 0;
 
-            for (const [id, qty] of Object.entries(cart)) {
-                const product = productsData.find(p => p.id == id);
-                if (product) {
-                    items.push({
-                        name: product.name,
-                        price: product.price,
-                        quantity: qty,
-                        sum: product.price * qty
-                    });
-                    totalPrice += product.price * qty;
-                }
+            for (const id in cart) {
+                const item = products.find(p => p.id == id);
+                orderItems.push({
+                    name: item.name,
+                    qty: cart[id],
+                    price: item.price * cart[id]
+                });
+                total += item.price * cart[id];
             }
 
-            // Отправляем структурированный массив заказа в Telegram
-            tg.sendData(JSON.stringify({
-                items: items,
-                totalPrice: totalPrice
-            }));
+            const payload = {
+                items: orderItems,
+                total_price: total
+            };
+
+            tg.sendData(JSON.stringify(payload));
         }
 
-        // Первичная отрисовка
         renderProducts();
     </script>
 </body>
