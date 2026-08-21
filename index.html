@@ -1,116 +1,21 @@
-const tg = window.Telegram?.WebApp;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaser Shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <header class="header">
+        <h1>Каталог Chaser</h1>
+    </header>
 
-// Данные товаров (пути указывают на корень проекта)
-const products = [
-    {
-        id: 1,
-        name: "Chaser Mint",
-        price: 60,
-        volume: "30ml",
-        img: "mint.jpg",
-        description: "Освежающий, чистый и бодрящий вкус перечной мяты."
-    },
-    {
-        id: 2,
-        name: "Chaser Grape Plus",
-        price: 60,
-        volume: "30ml",
-        img: "grape.jpg",
-        description: "Насыщенный вкус сочного тёмного винограда."
-    },
-    {
-        id: 3,
-        name: "Chaser Pineapple",
-        price: 60,
-        volume: "30ml",
-        img: "pineapple.jpg",
-        description: "Яркий и сладкий тропический ананас."
-    },
-    {
-        id: 4,
-        name: "Chaser Energy Cherry",
-        price: 60,
-        volume: "30ml",
-        img: "energy_cherry.jpg",
-        description: "Микс бодрящего энергетика и спелой вишни."
-    },
-    {
-        id: 5,
-        name: "Chaser Lux Tropic Punch",
-        price: 60,
-        volume: "30ml",
-        img: "tropic_punch.jpg",
-        description: "Тропический пунш: манго и цитрусы."
-    },
-    {
-        id: 6,
-        name: "Chaser Lux Blueberry Mint",
-        price: 60,
-        volume: "30ml",
-        img: "blueberry_mint.jpg",
-        description: "Премиальный микс черники и свежей мяты."
-    },
-    {
-        id: 7,
-        name: "Chaser Triple Raspberry",
-        price: 60,
-        volume: "30ml",
-        img: "triple_raspberry.jpg",
-        description: "Сочетание трех сортов малины: красной, желтой, синей."
-    },
-    {
-        id: 8,
-        name: "Chaser Pink Lemonade",
-        price: 60,
-        volume: "30ml",
-        img: "pink_lemonade.jpg",
-        description: "Розовый лимонад: малина и лимон со льдом."
-    }
-];
+    <main class="container">
+        <div id="products-container" class="products-grid"></div>
+    </main>
 
-let cart = [];
-
-function renderProducts() {
-    const container = document.getElementById('products-container');
-    if (!container) return;
-    
-    container.innerHTML = products.map(product => `
-        <div class="product-card">
-            <img src="${product.img}" alt="${product.name}">
-            <h3>${product.name}</h3>
-            <p class="desc">${product.description}</p>
-            <p class="price">${product.price} PLN</p>
-            <button onclick="addToCart(${product.id})">Добавить</button>
-        </div>
-    `).join('');
-}
-
-function addToCart(productId) {
-    const item = products.find(p => p.id === productId);
-    if (item) {
-        cart.push(item);
-        updateTelegramMainButton();
-    }
-}
-
-function updateTelegramMainButton() {
-    if (!tg) return;
-    if (cart.length > 0) {
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
-        tg.MainButton.text = `Оформить заказ (${total} PLN)`;
-        tg.MainButton.show();
-    } else {
-        tg.MainButton.hide();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (tg) {
-        tg.ready();
-        tg.expand();
-        tg.onEvent('mainButtonClicked', () => {
-            tg.sendData(JSON.stringify(cart));
-        });
-    }
-    renderProducts();
-});
+    <script src="app.js"></script>
+</body>
+</html>
