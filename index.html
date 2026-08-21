@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaser Gold Edition</title>
+    <title>Chaos Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Шрифт GTA San Andreas -->
+    <link href="https://fonts.cdnfonts.com/css/pricedown" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -26,13 +28,15 @@
         h1 {
             text-align: center;
             margin-bottom: 24px;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 1px;
+            font-size: 38px;
+            font-weight: 400;
+            font-family: 'Pricedown Bl', 'Pricedown', sans-serif;
+            letter-spacing: 3px;
             background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
+            text-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
 
         .products-grid {
@@ -137,17 +141,46 @@
             cursor: pointer;
             z-index: 1000;
         }
+
+        /* Уведомление при добавлении в корзину */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(24, 24, 31, 0.95);
+            border: 1px solid #ffd700;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 2000;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
     </style>
 </head>
 <body>
 
-    <h1>Каталог Chaser</h1>
+    <h1>Chaos Shop</h1>
 
     <div id="products-container" class="products-grid"></div>
 
     <div id="cart-bar" class="cart-bar" onclick="sendOrder()">
         <span>Оформить заказ (<span id="cart-count">0</span>)</span>
         <span id="cart-total">0 PLN</span>
+    </div>
+
+    <div id="toast" class="toast">
+        Спасибо за покупку! 💖(⁠ ⁠•⁠ ⁠¾⁠ ⁠•⁠ ⁠)
     </div>
 
     <script>
@@ -239,11 +272,20 @@
             `).join('');
         }
 
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
         function addToCart(productId) {
             const item = products.find(p => p.id === productId);
             if (item) {
                 cart.push(item);
                 updateCartUI();
+                showToast();
             }
         }
 
@@ -297,5 +339,7 @@
             }
         });
     </script>
+</body>
+</html>
 </body>
 </html>
