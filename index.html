@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chaser Shop Black Edition</title>
+    <title>Chaser Gold Edition</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
         }
 
         body {
-            background-color: #000000;
+            background-color: #0d0d0f;
             color: #ffffff;
             padding: 20px 16px 90px 16px;
         }
@@ -28,8 +28,10 @@
             margin-bottom: 24px;
             font-size: 24px;
             font-weight: 800;
-            letter-spacing: 1.5px;
-            color: #ffffff;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-transform: uppercase;
         }
 
@@ -42,20 +44,15 @@
         }
 
         .product-card {
-            background: #111114;
-            border-radius: 16px;
+            background: linear-gradient(145deg, #18181f, #111116);
+            border-radius: 18px;
             padding: 14px 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            border: 1px solid #22222a;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-            transition: border-color 0.2s ease;
-        }
-
-        .product-card:active {
-            border-color: #0088cc;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
         }
 
         .img-container {
@@ -86,35 +83,38 @@
 
         .product-card .desc {
             font-size: 11px;
-            color: #888899;
+            color: #a0a0b0;
             line-height: 1.4;
             margin-bottom: 12px;
             flex-grow: 1;
+            font-weight: 400;
         }
 
         .product-card .price {
             font-weight: 800;
-            color: #00ff88;
+            color: #ffd700;
             font-size: 16px;
             margin-bottom: 12px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
         }
 
         .btn-add {
             width: 100%;
-            background: #0088cc;
-            color: #ffffff;
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
+            color: #000000;
             border: none;
             padding: 10px 0;
             border-radius: 10px;
             font-size: 13px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s ease, transform 0.1s ease;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.25);
         }
 
         .btn-add:active {
-            background: #00aaff;
             transform: scale(0.96);
+            opacity: 0.9;
         }
 
         .cart-bar {
@@ -124,8 +124,8 @@
             transform: translateX(-50%);
             width: calc(100% - 32px);
             max-width: 400px;
-            background: #0088cc;
-            color: #ffffff;
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            color: #000000;
             padding: 14px 20px;
             border-radius: 14px;
             font-weight: 800;
@@ -133,7 +133,7 @@
             display: none;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 25px rgba(0, 136, 204, 0.4);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
             cursor: pointer;
             z-index: 1000;
         }
@@ -167,7 +167,7 @@
                 name: "Chaser Grape Plus",
                 price: 60,
                 volume: "30ml",
-                img: "grape_plus.jpg?v=4",
+                img: "grape_plus.jpg?v=5",
                 description: "Насыщенный вкус сочного тёмного винограда с усиленной ароматикой. Настоящая ягодная феерия."
             },
             {
@@ -255,8 +255,8 @@
                 if (count > 0) {
                     tg.MainButton.setText(`Оформить заказ (${count}) • ${total} PLN`);
                     tg.MainButton.setParams({
-                        color: '#0088cc',
-                        text_color: '#ffffff'
+                        color: '#ffd700',
+                        text_color: '#000000'
                     });
                     tg.MainButton.show();
                 } else {
