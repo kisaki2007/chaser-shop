@@ -371,7 +371,7 @@
 
         @media (max-width: 360px) {
             .product-card {
-                flex: 0 1 100%; /* На очень маленьких экранах по 1 в ряд для симметрии */
+                flex: 0 1 100%;
             }
         }
     </style>
@@ -453,6 +453,7 @@
         const products = [
             { id: 1, name: "Chaser Mint", price: 60, stock: 4, img: "mint.jpg" },
             { id: 2, name: "Chaser Grape Plus", price: 60, stock: 3, img: "grape_plus.jpg?v=5" },
+            { id: 3, name: "Chaser Watermelon", price: 60, stock: 3, img: "watermelon.jpg" },
             { id: 4, name: "Chaser Energy Raspberry", price: 60, stock: 3, img: "energy_raspberry.jpg" },
             { id: 5, name: "Chaser Pink Lemonade", price: 60, stock: 3, img: "pink_lemonade.jpg" },
             { id: 6, name: "Chaser Triple Berry", price: 60, stock: 4, img: "triple_raspberry.jpg" },
@@ -477,7 +478,7 @@
             container.innerHTML = products.map(p => `
                 <div class="product-card">
                     <div class="img-container">
-                        <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/kisaki2007/chaser-shop/main/mint.jpg';">
+                        <img src="${p.img}" alt="${p.name}">
                     </div>
                     <div class="stock-badge">${p.stock} шт в наличии ✅</div>
                     <h3>${p.name}</h3>
