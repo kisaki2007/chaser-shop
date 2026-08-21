@@ -1,72 +1,59 @@
-import asyncio
-import json
-import logging
-from aiogram import Bot, Dispatcher, F, types
-from aiogram.filters import CommandStart
-from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
+import os
+from PIL import Image
 
-# Настройки бота
-BOT_TOKEN = "ВАШ_BOT_TOKEN"
-ADMIN_ID = 123456789  # Укажите ваш Telegram ID
-WEB_APP_URL = "https://your-username.github.io/your-repo/"  # Ваша ссылка на index.html
+# Список файлов изображений товаров
+image_files = [
+    "mint.jpg", 
+    "grape_plus.jpg", 
+    "watermelon.jpg",
+    "energy_raspberry.jpg", 
+    "pink_lemonade.jpg",
+    "triple_raspberry.jpg", 
+    "blueberry_mint.jpg",
+    "tropic_punch.jpg", 
+    "energy_cherry.jpg", 
+    "pineapple.jpg"
+]
 
-bot = Bot(token=BOT_TOKEN)
-dp = Dispatcher()
+TARGET_SIZE = (600, 600)      # Единый размер картинки
+BACKGROUND_COLOR = (255, 255, 255)  # Чисто белый фон (#FFFFFF)
 
-@dp.message(CommandStart())
-async def start_cmd(message: types.Message):
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="🛒 Открыть Chaser Store", 
-                    web_app=WebAppInfo(url=WEB_APP_URL)
-                )
-            ]
-        ]
-    )
-    await message.answer(
-        "Добро пожаловать в Chaser Store! Нажмите кнопку ниже для перехода к каталогу:",
-        reply_markup=kb
-    )
-
-@dp.message(F.web_app_data)
-async def handle_web_app_data(message: types.Message):
+def process_image(file_path):
+    if not os.path.exists(file_path):
+        print(f"Файл {file_path} не найден, пропускаем.")
+        return
+    
     try:
-        data = json.loads(message.web_app_data.data)
+        img = Image.open(file_path).convert("RGBA")
         
-        customer = data.get("customer", {})
-        items = data.get("items", [])
-        total = data.get("total", 0)
-        currency = data.get("currency", "PLN")
-
-        items_text = ""
-        for item in items:
-            items_text += f"• {item['name']} — {item['count']} шт. ({item['price'] * item['count']} {currency})\n"
-
-        order_message = (
-            f"🛍 **НОВЫЙ ЗАКАЗ!**\n\n"
-            f"👤 **Покупатель:** {customer.get('name')}\n"
-            f"📞 **Телефон:** {customer.get('phone')}\n"
-            f"📍 **Адрес / Доставка:** {customer.get('address')}\n"
-            f"💬 **Профиль:** @{message.from_user.username or 'нет_юзернейма'} (ID: `{message.from_user.id}`)\n\n"
-            f"📦 **Товары:**\n{items_text}\n"
-            f"💰 **Итого к оплате:** `{total} {currency}`"
-        )
-
-        # Сообщение клиенту
-        await message.answer("✅ Ваш заказ успешно оформлен! Мы свяжемся с вами в ближайшее время.")
-
-        # Уведомление администратору
-        await bot.send_message(chat_id=ADMIN_ID, text=order_message, parse_mode="Markdown")
-
+        # 1. Заменяем все светлые оттенки фонов (RGB > 230) на чисто белый
+        datas = img.getdata()
+        new_data = []
+        for item in datas:
+            if item[0] > 230 and item[1] > 230 and item[2] > 230:
+                new_data.append((255, 255, 255, 255))
+            else:
+                new_data.append(item)
+        img.putdata(new_data)
+        
+        # 2. Пропорционально подгоняем размер флакона под 480x480
+        img.thumbnail((480, 480), Image.Resampling.LANCZOS)
+        
+        # 3. Создаем идеальный белый холст 600x600 и ставим флакон ровно по центру
+        final_img = Image.new("RGB", TARGET_SIZE, BACKGROUND_COLOR)
+        offset = ((TARGET_SIZE[0] - img.size[0]) // 2, (TARGET_SIZE[1] - img.size[1]) // 2)
+        
+        if img.mode == 'RGBA':
+            final_img.paste(img, offset, mask=img.split()[3])
+        else:
+            final_img.paste(img, offset)
+            
+        # Сохраняем результат
+        final_img.save(file_path, "JPEG", quality=98)
+        print(f"Изображение {file_path} успешно обработано!")
     except Exception as e:
-        logging.error(f"Ошибка при обработке заказа: {e}")
-        await message.answer("Произошла ошибка при отправке заказа. Попробуйте еще раз.")
-
-async def main():
-    logging.basicConfig(level=logging.INFO)
-    await dp.start_polling(bot)
+        print(f"Ошибка при обработке {file_path}: {e}")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    for filename in image_files:
+        process_image(filename)
