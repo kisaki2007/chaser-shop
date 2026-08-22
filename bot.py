@@ -16,9 +16,7 @@ from aiogram.types import (
 BOT_TOKEN = "8748194051:AAFwx3gA-r1-E7RI0daLUluvyQhCcrI3vQk"
 ADMIN_ID = 1042492622  # Твой ID
 ADMIN_USERNAME = "Macwinn"
-
-# ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ index.html (например, с GitHub Pages или Vercel):
-WEB_APP_URL = "https://твой-сайт.github.io/"
+WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=local_img_v1"
 # ============================================
 
 dp = Dispatcher()
@@ -67,7 +65,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
         items_text = "\n".join(items_list)
         total_price = data.get("total", 0)
 
-        # Текст для тебя (в ЛС)
+        # Сообщение администратору (тебе в ЛС)
         admin_message = (
             f"🚀 **НОВЫЙ ЗАКАЗ В CHAOS SHOP!**\n\n"
             f"👤 **Покупатель:** {user.first_name} ({username_str})\n"
@@ -76,7 +74,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"💰 **Итого к оплате:** `{total_price} PLN`"
         )
 
-        # Текст для клиента
+        # Подтверждение для покупателя
         client_message = (
             f"✅ **Ваш заказ оформлен!**\n\n"
             f"📦 **Ваш выбор:**\n{items_text}\n\n"
@@ -84,12 +82,12 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"Для подтверждения и оплаты напишите менеджеру: @{ADMIN_USERNAME}"
         )
 
-        # Отправка заказа тебе
+        # Отправка заказа тебе в ЛС
         await bot.send_message(
             chat_id=ADMIN_ID, text=admin_message, parse_mode="Markdown"
         )
 
-        # Отправка ответа клиенту
+        # Отправка подтверждения покупателю
         await message.answer(text=client_message, parse_mode="Markdown")
 
     except Exception as e:
@@ -102,7 +100,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
 async def main():
     bot = Bot(token=BOT_TOKEN)
 
-    # Установка кнопки меню слева от поля ввода
+    # Устанавливаем кнопку магазина слева от поля ввода в боте
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="CHAOS SHOP", web_app=WebAppInfo(url=WEB_APP_URL)
