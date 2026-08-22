@@ -1,59 +1,76 @@
-import os
-from PIL import Image
+import logging
+from aiogram import Bot, Dispatcher, types, F
+from aiogram.filters import CommandStart
+from aiogram.types import (
+    ReplyKeyboardMarkup, 
+    KeyboardButton, 
+    InlineKeyboardMarkup, 
+    InlineKeyboardButton, 
+    WebAppInfo
+)
+from aiogram.enums import ParseMode
+import asyncio
 
-# Список файлов изображений товаров
-image_files = [
-    "mint.jpg", 
-    "grape_plus.jpg", 
-    "watermelon.jpg",
-    "energy_raspberry.jpg", 
-    "pink_lemonade.jpg",
-    "triple_raspberry.jpg", 
-    "blueberry_mint.jpg",
-    "tropic_punch.jpg", 
-    "energy_cherry.jpg", 
-    "pineapple.jpg"
-]
+# Токен вашего бота
+TOKEN = "YOUR_BOT_TOKEN_HERE"  # Укажите ваш токен бота или используйте os.getenv('BOT_TOKEN')
 
-TARGET_SIZE = (600, 600)      # Единый размер картинки
-BACKGROUND_COLOR = (255, 255, 255)  # Чисто белый фон (#FFFFFF)
+# Новый адрес приложения на Netlify
+WEB_APP_URL = "https://timely-syrniki-261609.netlify.app/"
 
-def process_image(file_path):
-    if not os.path.exists(file_path):
-        print(f"Файл {file_path} не найден, пропускаем.")
-        return
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
+
+# Обработчик команды /start
+@dp.message(CommandStart())
+async def cmd_start(message: types.Message):
+    # Кнопка под полем ввода (Reply Keyboard)
+    reply_kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="🛒 Открыть Chaos Shop", web_app=WebAppInfo(url=WEB_APP_URL))]
+        ],
+        resize_keyboard=True
+    )
+
+    # Inline-кнопка в самом сообщении
+    inline_kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="✨ Перейти в магазин", web_app=WebAppInfo(url=WEB_APP_URL))]
+        ]
+    )
+
+    await message.answer(
+        f"Привет, {message.from_user.first_name}! 👋\n\n"
+        f"Добро пожаловать в **Chaos Shop**! 🖤\n"
+        f"Нажмите кнопку ниже, чтобы открыть каталог товаров.",
+        reply_markup=inline_kb,
+        parse_mode=ParseMode.MARKDOWN
+    )
+
+# Обработка данных, поступающих из WebApp при оформлении заказа
+@dp.message(F.web_app_data)
+async def web_app_data_handler(message: types.Message):
+    import json
+    data = json.loads(message.web_app_data.data)
     
-    try:
-        img = Image.open(file_path).convert("RGBA")
-        
-        # 1. Заменяем все светлые оттенки фонов (RGB > 230) на чисто белый
-        datas = img.getdata()
-        new_data = []
-        for item in datas:
-            if item[0] > 230 and item[1] > 230 and item[2] > 230:
-                new_data.append((255, 255, 255, 255))
-            else:
-                new_data.append(item)
-        img.putdata(new_data)
-        
-        # 2. Пропорционально подгоняем размер флакона под 480x480
-        img.thumbnail((480, 480), Image.Resampling.LANCZOS)
-        
-        # 3. Создаем идеальный белый холст 600x600 и ставим флакон ровно по центру
-        final_img = Image.new("RGB", TARGET_SIZE, BACKGROUND_COLOR)
-        offset = ((TARGET_SIZE[0] - img.size[0]) // 2, (TARGET_SIZE[1] - img.size[1]) // 2)
-        
-        if img.mode == 'RGBA':
-            final_img.paste(img, offset, mask=img.split()[3])
-        else:
-            final_img.paste(img, offset)
-            
-        # Сохраняем результат
-        final_img.save(file_path, "JPEG", quality=98)
-        print(f"Изображение {file_path} успешно обработано!")
-    except Exception as e:
-        print(f"Ошибка при обработке {file_path}: {e}")
+    items_text = ""
+    for item in data.get("items", []):
+        items_text += f"• {item['name']} x{item['qty']} — {item['price'] * item['qty']} PLN\n"
+    
+    cust = data.get("customer", {})
+    order_info = (
+        f"🛍 **Новый заказ!**\n\n"
+        f"**Состав заказа:**\n{items_text}\n"
+        f"**Итого:** {data.get('total')} PLN\n\n"
+        f"👤 **Покупатель:** {cust.get('name')}\n"
+        f"📞 **Телефон:** {cust.get('phone')}\n"
+        f"📍 **Адрес:** {cust.get('address')}"
+    )
+
+    await message.answer(f"Спасибо за заказ! 🎉\n\n{order_info}", parse_mode=ParseMode.MARKDOWN)
+
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    for filename in image_files:
-        process_image(filename)
+    asyncio.run(main())
