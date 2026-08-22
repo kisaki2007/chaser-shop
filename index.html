@@ -544,7 +544,7 @@
         <span>Итого:</span>
         <span class="val" id="total-val">0 PLN</span>
       </div>
-      <button class="btn-checkout" onclick="checkout()">ОФОРМИТЬ ЗАКАЗ 🚀</button>
+      <button class="btn-checkout" id="submit-btn" onclick="checkout()">ОФОРМИТЬ ЗАКАЗ 🚀</button>
     </div>
   </div>
 
@@ -564,6 +564,10 @@
   </div>
 
   <script>
+    const BOT_TOKEN = "8748194051:AAFwx3gA-r1-E7RI0daLUluvyQhCcrI3vQk";
+    const ADMIN_ID = 1042492622;
+    const ADMIN_USERNAME = "Macwinn";
+
     const tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) {
       tg.expand();
@@ -727,7 +731,7 @@
       totalVal.innerText = `${total} PLN`;
     }
 
-    function checkout() {
+    async function checkout() {
       const itemsArray = Object.values(cart);
       if (itemsArray.length === 0) {
         alert("Добавьте хотя бы один товар!");
@@ -743,26 +747,64 @@
         return;
       }
 
-      const totalSum = itemsArray.reduce((sum, i) => sum + i.price * i.qty, 0);
-      const data = {
-        items: itemsArray.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-        total: totalSum,
-        customer: {
-          name: name,
-          address: address,
-          phone: phone
-        }
-      };
+      const btn = document.getElementById('submit-btn');
+      btn.innerText = "ОТПРАВКА...";
+      btn.disabled = true;
 
-      // Проверка возможности отправки данных
-      if (tg && tg.sendData) {
-        try {
-          tg.sendData(JSON.stringify(data));
-        } catch (e) {
-          alert("Ошибка отправки. Откройте приложение через кнопку меню снизу (Reply Keyboard)!");
+      const user = tg?.initDataUnsafe?.user || {};
+      const usernameStr = user.username ? `@${user.username}` : "не указан";
+      const firstName = user.first_name || "Покупатель";
+
+      const totalSum = itemsArray.reduce((sum, i) => sum + i.price * i.qty, 0);
+      const itemsText = itemsArray.map(i => `• **${i.name}** х ${i.qty} шт. — \`${i.price * i.qty} PLN\``).join('\n');
+
+      const adminMessage = `🚀 **НОВЫЙ ЗАКАЗ В CHAOS SHOP!**\n\n` +
+        `👤 **Покупатель:** ${firstName} (${usernameStr})\n` +
+        `🆔 **ID:** \`${user.id || 'неизвестно'}\`\n\n` +
+        `📦 **Состав заказа:**\n${itemsText}\n\n` +
+        `💰 **Итого к оплате:** \`${totalSum} PLN\`\n\n` +
+        `🚚 **ДАННЫЕ ДОСТАВКИ:**\n` +
+        `▫️ **Имя/Фамилия:** \`${name}\`\n` +
+        `▫️ **Адрес/Paczkomat:** \`${address}\`\n` +
+        `▫️ **Телефон:** \`${phone}\``;
+
+      const userMessage = `✅ **Ваш заказ оформлен!**\n\n` +
+        `📦 **Ваш выбор:**\n${itemsText}\n\n` +
+        `💰 **Сумма:** \`${totalSum} PLN\`\n\n` +
+        `🚚 **Доставка:** ${address} (${name})\n\n` +
+        `Для подтверждения и оплаты напишите менеджеру: @${ADMIN_USERNAME}`;
+
+      try {
+        // 1. Отправляем сообщение администратору
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: ADMIN_ID,
+            text: adminMessage,
+            parse_mode: 'Markdown'
+          })
+        });
+
+        // 2. Отправляем сообщение покупателю (если известный chat_id)
+        if (user.id) {
+          await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: user.id,
+              text: userMessage,
+              parse_mode: 'Markdown'
+            })
+          });
         }
-      } else {
-        alert(`Тестовый режим: Данные сформированы!\nИмя: ${name}\nАдрес: ${address}\nТел: ${phone}`);
+
+        alert("✅ Заказ оформлен! Данные отправлены менеджеру.");
+        if (tg) tg.close();
+      } catch (err) {
+        alert("Ошибка сети при отправке заказа: " + err.message);
+        btn.innerText = "ОФОРМИТЬ ЗАКАЗ 🚀";
+        btn.disabled = false;
       }
     }
 
