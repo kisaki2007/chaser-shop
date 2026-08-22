@@ -17,7 +17,6 @@
       --text-white: #ffffff;
       --text-gray: #8d8d95;
       --green-stock: #1b382b;
-      --green-text: #27ae60;
     }
 
     * {
@@ -56,9 +55,6 @@
       z-index: 20000;
       transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     #toast-notification.show {
@@ -194,11 +190,6 @@
       align-items: center;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .product-card:active {
-      transform: scale(0.98);
     }
 
     .img-box {
@@ -229,9 +220,6 @@
       padding: 4px 10px;
       border-radius: 20px;
       margin-bottom: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .product-name {
@@ -264,11 +252,6 @@
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-buy:active {
-      transform: scale(0.97);
     }
 
     /* КОРЗИНА И ФОРМА */
@@ -323,9 +306,6 @@
       font-size: 16px;
       font-weight: 800;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .qty-num {
@@ -365,11 +345,6 @@
       display: block;
     }
 
-    .input-label span {
-      color: var(--accent-yellow);
-      font-size: 11px;
-    }
-
     .form-input {
       width: 100%;
       background: #1a1a1f;
@@ -379,7 +354,6 @@
       color: var(--text-white);
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
     }
 
     .form-input:focus {
@@ -450,12 +424,6 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      animation: modalFadeIn 0.3s ease;
-    }
-
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
     }
 
     .close-modal-btn {
@@ -471,9 +439,6 @@
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .modal-img-box {
@@ -559,7 +524,7 @@
         <div class="delivery-section-title">Данные для доставки</div>
         
         <div class="input-group">
-          <label class="input-label" for="cust-name">Имя и Фамилия <span>(строго на латинице)</span>:</label>
+          <label class="input-label" for="cust-name">Имя и Фамилия (латиница):</label>
           <input type="text" id="cust-name" class="form-input" placeholder="например, Jan Kowalski">
         </div>
 
@@ -600,7 +565,10 @@
 
   <script>
     const tg = window.Telegram ? window.Telegram.WebApp : null;
-    if (tg) tg.expand();
+    if (tg) {
+      tg.expand();
+      tg.ready();
+    }
 
     function closeWelcome() {
       const modal = document.getElementById('welcome-modal');
@@ -786,13 +754,15 @@
         }
       };
 
-      if (tg) {
-        tg.sendData(JSON.stringify(data));
-        setTimeout(() => {
-          tg.close();
-        }, 300);
+      // Проверка возможности отправки данных
+      if (tg && tg.sendData) {
+        try {
+          tg.sendData(JSON.stringify(data));
+        } catch (e) {
+          alert("Ошибка отправки. Откройте приложение через кнопку меню снизу (Reply Keyboard)!");
+        }
       } else {
-        alert(`Заказ оформлен! Сумма: ${totalSum} PLN`);
+        alert(`Тестовый режим: Данные сформированы!\nИмя: ${name}\nАдрес: ${address}\nТел: ${phone}`);
       }
     }
 
