@@ -13,10 +13,10 @@ from aiogram.types import (
 from aiogram.enums import ParseMode
 import asyncio
 
-# Укажите токен бота или используйте переменную окружения
+# Токен вашего бота (или значение из переменной окружения)
 TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
 
-# Ссылка на Netlify с версионированием ?v=2.0 для сброса кэша Telegram
+# Ссылка на Netlify с версионированием для сброса кэша Telegram
 WEB_APP_URL = "https://timely-syrniki-261609.netlify.app/?v=2.0"
 
 bot = Bot(token=TOKEN)
@@ -24,7 +24,7 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    # Нижняя кнопка под чатом
+    # Нижняя кнопка меню
     reply_kb = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🛒 Открыть Chaos Shop", web_app=WebAppInfo(url=WEB_APP_URL))]
