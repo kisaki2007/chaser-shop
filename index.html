@@ -40,6 +40,31 @@
       padding-bottom: 40px;
     }
 
+    /* УВЕДОМЛЕНИЕ СВЕРХУ */
+    #toast-notification {
+      position: fixed;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-yellow);
+      color: #000;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px var(--accent-yellow-glow);
+      z-index: 20000;
+      transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #toast-notification.show {
+      top: 20px;
+    }
+
     /* ВСПЛЫВАЮЩЕЕ ОКНО D&N */
     #welcome-modal {
       position: fixed;
@@ -169,7 +194,7 @@
       align-items: center;
       text-align: center;
       cursor: pointer;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s ease;
     }
 
     .product-card:active {
@@ -347,7 +372,7 @@
       font-size: 14px;
     }
 
-    /* МОДАЛЬНОЕ ОКНО ТОВАРА (ДЕТАЛИ) */
+    /* МОДАЛЬНОЕ ОКНО ТОВАРА */
     #product-modal {
       position: fixed;
       top: 0;
@@ -445,6 +470,9 @@
 </head>
 <body>
 
+  <!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ -->
+  <div id="toast-notification">Добавлено 🛒</div>
+
   <!-- ВСПЛЫВАЮЩЕЕ ОКНО D&N -->
   <div id="welcome-modal">
     <div class="welcome-box">
@@ -508,88 +536,27 @@
       setTimeout(() => { modal.style.display = 'none'; }, 400);
     }
 
-    // ТОВАРЫ С АКТУАЛЬНЫМ НАЛИЧИЕМ И ОПИСАНИЯМИ
+    let toastTimer;
+    function showToast() {
+      const toast = document.getElementById('toast-notification');
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
     const products = [
-      { 
-        id: 1, 
-        name: "Chaser Mint", 
-        price: 60, 
-        stock: 4, 
-        img: "./mint.jpg",
-        desc: "Освежающий, чистый и морозный вкус классической перечной мяты. Идеальный выбор для тех, кто любит прохладу и бодрящее послевкусие."
-      },
-      { 
-        id: 2, 
-        name: "Chaser Grape Plus", 
-        price: 60, 
-        stock: 3, 
-        img: "./grape_plus.jpg",
-        desc: "Насыщенный и сочный вкус спелого тёмного винограда с легкой кислинкой. Глубокий сладкий аромат для настоящих ценителей."
-      },
-      { 
-        id: 3, 
-        name: "Chaser Watermelon", 
-        price: 60, 
-        stock: 3, 
-        img: "./watermelon.jpg",
-        desc: "Сочный летний арбуз! Нежная мякоть спелого арбуза с легким освежающим оттенком."
-      },
-      { 
-        id: 4, 
-        name: "Chaser Blueberry Mint", 
-        price: 60, 
-        stock: 3, 
-        img: "./blueberry_mint.jpg",
-        desc: "Идеальное сочетание спелой лесной черники и прохладной мяты. Сладкий лесной микс с мятным финишем."
-      },
-      { 
-        id: 5, 
-        name: "Chaser Energy Cherry", 
-        price: 60, 
-        stock: 4, 
-        img: "./energy_cherry.jpg",
-        desc: "Яркий вкус бодрящего энергетического напитка с сочной спелой вишней. Мощный заряд вкуса на весь день!"
-      },
-      { 
-        id: 6, 
-        name: "Chaser Energy Raspberry", 
-        price: 60, 
-        stock: 3, 
-        img: "./energy_raspberry.jpg",
-        desc: "Взрывной микс энергетика и душистой малины. Сладкая ягодная кислинка с характерным оттенком популярного напитка."
-      },
-      { 
-        id: 7, 
-        name: "Chaser Pineapple", 
-        price: 60, 
-        stock: 4, 
-        img: "./pineapple.jpg",
-        desc: "Яркий, тропический и сладкий ананас. Освежающий вкус с легкой кислинкой прямо из тропиков."
-      },
-      { 
-        id: 8, 
-        name: "Chaser Pink Lemonade", 
-        price: 60, 
-        stock: 2, 
-        img: "./pink_lemonade.jpg",
-        desc: "Классический розовый лимонад: освежающий микс цитрусового лимонада и сладких лесных ягод."
-      },
-      { 
-        id: 9, 
-        name: "Chaser Triple Raspberry", 
-        price: 60, 
-        stock: 4, 
-        img: "./triple_raspberry.jpg",
-        desc: "Тройной малиновый удар! Сочетание красной, чёрной и синей малины для максимально глубокого и насыщенного ягодного вкуса."
-      },
-      { 
-        id: 10, 
-        name: "Chaser Tropic Punch", 
-        price: 60, 
-        stock: 4, 
-        img: "./tropic_punch.jpg",
-        desc: "Экзотический тропический пунш из лучших фруктов: манго, маракуйя и гуава в одном ярком коктейле."
-      }
+      { id: 1, name: "Chaser Mint", price: 60, stock: 4, img: "./mint.jpg", desc: "Освежающий, чистый и морозный вкус классической перечной мяты." },
+      { id: 2, name: "Chaser Grape Plus", price: 60, stock: 3, img: "./grape_plus.jpg", desc: "Насыщенный и сочный вкус спелого тёмного винограда с легкой кислинкой." },
+      { id: 3, name: "Chaser Watermelon", price: 60, stock: 3, img: "./watermelon.jpg", desc: "Сочный летний арбуз! Нежная мякоть спелого арбуза с легким освежающим оттенком." },
+      { id: 4, name: "Chaser Blueberry Mint", price: 60, stock: 3, img: "./blueberry_mint.jpg", desc: "Идеальное сочетание спелой лесной черники и прохладной мяты." },
+      { id: 5, name: "Chaser Energy Cherry", price: 60, stock: 4, img: "./energy_cherry.jpg", desc: "Яркий вкус бодрящего энергетического напитка с сочной спелой вишней." },
+      { id: 6, name: "Chaser Energy Raspberry", price: 60, stock: 3, img: "./energy_raspberry.jpg", desc: "Взрывной микс энергетика и душистой малины." },
+      { id: 7, name: "Chaser Pineapple", price: 60, stock: 4, img: "./pineapple.jpg", desc: "Яркий, тропический и сладкий ананас с легкой кислинкой." },
+      { id: 8, name: "Chaser Pink Lemonade", price: 60, stock: 2, img: "./pink_lemonade.jpg", desc: "Классический розовый лимонад: цитрусовый лимонад и сладкие ягоды." },
+      { id: 9, name: "Chaser Triple Raspberry", price: 60, stock: 4, img: "./triple_raspberry.jpg", desc: "Тройной малиновый удар из красной, чёрной и синей малины." },
+      { id: 10, name: "Chaser Tropic Punch", price: 60, stock: 4, img: "./tropic_punch.jpg", desc: "Экзотический тропический пунш из манго, маракуйи и гуавы." }
     ];
 
     let cart = {};
@@ -612,7 +579,6 @@
       });
     }
 
-    /* РАБОТА С МОДАЛЬНЫМ ОКНОМ ТОВАРА */
     function openProductModal(id) {
       const p = products.find(item => item.id === id);
       if (!p) return;
@@ -664,6 +630,7 @@
         cart[id] = { ...item, qty: 1 };
       }
       updateCartCount();
+      showToast();
     }
 
     function changeQty(id, delta) {
