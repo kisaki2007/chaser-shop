@@ -16,7 +16,8 @@ from aiogram.types import (
 BOT_TOKEN = "8748194051:AAFwx3gA-r1-E7RI0daLUluvyQhCcrI3vQk"
 ADMIN_ID = 1042492622  # Ваш Telegram ID
 ADMIN_USERNAME = "Macwinn"
-WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=local_img_v1"
+# Параметр v=delivery_v3 принудительно обновит кэш Telegram
+WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=delivery_v3"
 # ============================================
 
 dp = Dispatcher()
@@ -71,7 +72,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
         cust_address = customer.get("address", "не указано")
         cust_phone = customer.get("phone", "не указан")
 
-        # Сообщение администратору (вам в ЛС)
+        # Сообщение вам в ЛС
         admin_message = (
             f"🚀 **НОВЫЙ ЗАКАЗ В CHAOS SHOP!**\n\n"
             f"👤 **Покупатель:** {user.first_name} ({username_str})\n"
@@ -84,7 +85,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"▫️ **Телефон:** `{cust_phone}`"
         )
 
-        # Подтверждение для покупателя
+        # Подтверждение покупателю
         client_message = (
             f"✅ **Ваш заказ оформлен!**\n\n"
             f"📦 **Ваш выбор:**\n{items_text}\n\n"
@@ -93,7 +94,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"Для подтверждения и оплаты напишите менеджеру: @{ADMIN_USERNAME}"
         )
 
-        # Отправляем заказ администратору
+        # Отправляем заказ вам
         await bot.send_message(
             chat_id=ADMIN_ID, text=admin_message, parse_mode="Markdown"
         )
@@ -111,7 +112,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
 async def main():
     bot = Bot(token=BOT_TOKEN)
 
-    # Устанавливаем кнопку магазина слева от поля ввода в боте
+    # Настройка кнопки меню слева от поля ввода
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="CHAOS SHOP", web_app=WebAppInfo(url=WEB_APP_URL)
