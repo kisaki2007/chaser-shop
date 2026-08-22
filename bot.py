@@ -6,9 +6,9 @@ import sys
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandStart
 from aiogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
+    KeyboardButton,
     MenuButtonWebApp,
+    ReplyKeyboardMarkup,
     WebAppInfo,
 )
 
@@ -16,8 +16,9 @@ from aiogram.types import (
 BOT_TOKEN = "8748194051:AAFwx3gA-r1-E7RI0daLUluvyQhCcrI3vQk"
 ADMIN_ID = 1042492622  # Ваш Telegram ID
 ADMIN_USERNAME = "Macwinn"
-# Параметр v=delivery_v3 принудительно обновит кэш Telegram
-WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=delivery_v3"
+
+# Версия v=delivery_v4 гарантирует сброс кэша
+WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=delivery_v4"
 # ============================================
 
 dp = Dispatcher()
@@ -26,21 +27,23 @@ dp = Dispatcher()
 # Обработка команды /start
 @dp.message(CommandStart())
 async def start_handler(message: types.Message):
-    kb = InlineKeyboardMarkup(
-        inline_keyboard=[
+    # ВАЖНО: sendData() работает ТОЛЬКО с ReplyKeyboardMarkup!
+    kb = ReplyKeyboardMarkup(
+        keyboard=[
             [
-                InlineKeyboardButton(
+                KeyboardButton(
                     text="🛒 Открыть CHAOS SHOP",
                     web_app=WebAppInfo(url=WEB_APP_URL),
                 )
             ]
-        ]
+        ],
+        resize_keyboard=True,
     )
 
     await message.answer(
         f"Привет, {message.from_user.first_name}! 👋\n\n"
         f"Добро пожаловать в **CHAOS SHOP**.\n"
-        f"Нажми на кнопку ниже, чтобы открыть каталог и сделать заказ.",
+        f"Нажмите кнопку внизу экрана ⤵️ чтобы открыть магазин.",
         reply_markup=kb,
         parse_mode="Markdown",
     )
@@ -72,7 +75,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
         cust_address = customer.get("address", "не указано")
         cust_phone = customer.get("phone", "не указан")
 
-        # Сообщение вам в ЛС
+        # Сообщение администратору
         admin_message = (
             f"🚀 **НОВЫЙ ЗАКАЗ В CHAOS SHOP!**\n\n"
             f"👤 **Покупатель:** {user.first_name} ({username_str})\n"
@@ -94,12 +97,12 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"Для подтверждения и оплаты напишите менеджеру: @{ADMIN_USERNAME}"
         )
 
-        # Отправляем заказ вам
+        # Отправка вам
         await bot.send_message(
             chat_id=ADMIN_ID, text=admin_message, parse_mode="Markdown"
         )
 
-        # Отправляем подтверждение покупателю
+        # Отправка покупателю
         await message.answer(text=client_message, parse_mode="Markdown")
 
     except Exception as e:
@@ -112,7 +115,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
 async def main():
     bot = Bot(token=BOT_TOKEN)
 
-    # Настройка кнопки меню слева от поля ввода
+    # Установка кнопки меню слева от поля ввода
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="CHAOS SHOP", web_app=WebAppInfo(url=WEB_APP_URL)
