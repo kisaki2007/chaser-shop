@@ -13,13 +13,12 @@ from aiogram.types import (
 )
 from aiogram.enums import ParseMode
 
-# Токен вашего бота
 TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
 
-# Ссылка на GitHub Pages с версионированием ?v=3.0 для сброса кэша Telegram
-WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=3.0"
+# Ссылка на GitHub Pages с версией v=4.0
+WEB_APP_URL = "https://kisaki2007.github.io/chaser-shop/?v=4.0"
 
-# (Опционально) Ваш личный Telegram ID (число), если хотите получать дубликаты заказов
+# Вставьте ваш Telegram ID (число без кавычек), если хотите получать уведомления о заказах
 ADMIN_CHAT_ID = None
 
 bot = Bot(token=TOKEN)
@@ -27,7 +26,6 @@ dp = Dispatcher()
 
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    # Нижняя кнопка под чатом
     reply_kb = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🛒 Открыть Chaos Shop", web_app=WebAppInfo(url=WEB_APP_URL))]
@@ -35,7 +33,6 @@ async def cmd_start(message: types.Message):
         resize_keyboard=True
     )
 
-    # Inline-кнопка в сообщении
     inline_kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="✨ Перейти в магазин", web_app=WebAppInfo(url=WEB_APP_URL))]
@@ -45,12 +42,11 @@ async def cmd_start(message: types.Message):
     await message.answer(
         f"Привет, {message.from_user.first_name}! 👋\n\n"
         f"Добро пожаловать в **Chaos Shop**! 🖤\n"
-        f"Нажмите кнопку ниже, чтобы открыть каталог и сделать заказ.",
+        f"Нажмите кнопку ниже, чтобы открыть каталог и оформить заказ.",
         reply_markup=inline_kb,
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Прием данных из WebApp (корзина + контакты клиента)
 @dp.message(F.web_app_data)
 async def web_app_data_handler(message: types.Message):
     try:
@@ -75,23 +71,23 @@ async def web_app_data_handler(message: types.Message):
             f"💬 **Telegram:** {username}"
         )
 
-        # 1. Отправляем подтверждение покупателю в чат с ботом
+        # 1. Чек покупателю
         await message.answer(
-            f"Спасибо за ваш заказ! 😊\n\nВот детали вашей заявки:\n\n{order_receipt}",
+            f"Спасибо за ваш заказ! 😊\n\nВот детали вашего заказа:\n\n{order_receipt}",
             parse_mode=ParseMode.MARKDOWN
         )
 
-        # 2. Если указан ADMIN_CHAT_ID, отправляем копию вам/администратору
+        # 2. Чек админу (если указан ADMIN_CHAT_ID)
         if ADMIN_CHAT_ID:
             await bot.send_message(
                 chat_id=ADMIN_CHAT_ID,
-                text=f"📥 **Уведомление для администратора:**\n\n{order_receipt}",
+                text=f"📥 **Новый заказ для админа:**\n\n{order_receipt}",
                 parse_mode=ParseMode.MARKDOWN
             )
 
     except Exception as e:
-        logging.error(f"Ошибка обработки заказа: {e}")
-        await message.answer("Произошла ошибка при обработке заказа. Попробуйте снова.")
+        logging.error(f"Ошибка заказа: {e}")
+        await message.answer("Произошла ошибка при обработке заказа.")
 
 async def main():
     logging.basicConfig(level=logging.INFO)
