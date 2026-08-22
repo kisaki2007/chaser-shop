@@ -12,12 +12,14 @@ from aiogram.types import (
     WebAppInfo,
 )
 
-# ================= КОНФИГУРАЦИЯ =================
-BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"  # Вставь сюда токен от @BotFather
-ADMIN_ID = 123456789  # Вставь сюда свой числовой Telegram ID (узнать в @userinfobot)
-WEB_APP_URL = "https://твой-сайт.github.io/"  # Вставь ссылку на твой index.html
+# ================= НАСТРОЙКИ =================
+BOT_TOKEN = "8748194051:AAFwx3gA-r1-E7RI0daLUluvyQhCcrI3vQk"
+ADMIN_ID = 1042492622  # Твой ID
 ADMIN_USERNAME = "Macwinn"
-# ================================================
+
+# ВСТАВЬ СЮДА ССЫЛКУ НА СВОЙ index.html (например, с GitHub Pages или Vercel):
+WEB_APP_URL = "https://твой-сайт.github.io/"
+# ============================================
 
 dp = Dispatcher()
 
@@ -45,7 +47,7 @@ async def start_handler(message: types.Message):
     )
 
 
-# Обработка заказа из WebApp
+# Прием данных заказа из Mini App
 @dp.message(F.web_app_data)
 async def web_app_data_handler(message: types.Message, bot: Bot):
     try:
@@ -54,7 +56,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
         user = message.from_user
         username_str = f"@{user.username}" if user.username else "не указан"
 
-        # Формируем список товаров из заказа
+        # Формируем список товаров
         items_list = []
         for item in data.get("items", []):
             item_sum = item["price"] * item["qty"]
@@ -65,7 +67,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
         items_text = "\n".join(items_list)
         total_price = data.get("total", 0)
 
-        # Текст уведомления для тебя (администратора)
+        # Текст для тебя (в ЛС)
         admin_message = (
             f"🚀 **НОВЫЙ ЗАКАЗ В CHAOS SHOP!**\n\n"
             f"👤 **Покупатель:** {user.first_name} ({username_str})\n"
@@ -74,7 +76,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"💰 **Итого к оплате:** `{total_price} PLN`"
         )
 
-        # Текст подтверждения для покупателя
+        # Текст для клиента
         client_message = (
             f"✅ **Ваш заказ оформлен!**\n\n"
             f"📦 **Ваш выбор:**\n{items_text}\n\n"
@@ -82,12 +84,12 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
             f"Для подтверждения и оплаты напишите менеджеру: @{ADMIN_USERNAME}"
         )
 
-        # Отправляем заказ тебе
+        # Отправка заказа тебе
         await bot.send_message(
             chat_id=ADMIN_ID, text=admin_message, parse_mode="Markdown"
         )
 
-        # Отправляем ответ покупателю
+        # Отправка ответа клиенту
         await message.answer(text=client_message, parse_mode="Markdown")
 
     except Exception as e:
@@ -100,7 +102,7 @@ async def web_app_data_handler(message: types.Message, bot: Bot):
 async def main():
     bot = Bot(token=BOT_TOKEN)
 
-    # Настройка кнопки WebApp слева от поля ввода
+    # Установка кнопки меню слева от поля ввода
     await bot.set_chat_menu_button(
         menu_button=MenuButtonWebApp(
             text="CHAOS SHOP", web_app=WebAppInfo(url=WEB_APP_URL)
