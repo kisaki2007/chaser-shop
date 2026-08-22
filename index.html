@@ -30,7 +30,6 @@
 
     body {
       background-color: var(--bg-color);
-      /* Оригинальный сетчатый фон */
       background-image: 
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -393,18 +392,18 @@
       setTimeout(() => { modal.style.display = 'none'; }, 400);
     }
 
-    // ВСЕ 10 ТОВАРОВ CHAOS / CHASER С ПРЯМЫМИ КАРТИНКАМИ
+    // ВСЕ 10 ТОВАРОВ ИЗ ВАШЕГО РЕПОЗИТОРИЯ
     const products = [
-      { id: 1, name: "Chaser Mint", price: 60, stock: 4, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-mint.png" },
-      { id: 2, name: "Chaser Grape Plus", price: 60, stock: 3, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-grape.png" },
-      { id: 3, name: "Chaser Watermelon", price: 60, stock: 5, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-watermelon.png" },
-      { id: 4, name: "Chaser Raspberry", price: 60, stock: 2, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-raspberry.png" },
-      { id: 5, name: "Chaser Mango", price: 60, stock: 4, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-mango.png" },
-      { id: 6, name: "Chaser Apple", price: 60, stock: 3, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-apple.png" },
-      { id: 7, name: "Chaser Blueberry", price: 60, stock: 4, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-blueberry.png" },
-      { id: 8, name: "Chaser Peach", price: 60, stock: 3, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-peach.png" },
-      { id: 9, name: "Chaser Strawberry", price: 60, stock: 5, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-strawberry.png" },
-      { id: 10, name: "Chaser Cherry", price: 60, stock: 2, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-cherry.png" }
+      { id: 1, name: "Chaser Mint", price: 60, stock: 4, img: "./mint.jpg" },
+      { id: 2, name: "Chaser Grape Plus", price: 60, stock: 3, img: "./grape_plus.jpg" },
+      { id: 3, name: "Chaser Watermelon", price: 60, stock: 5, img: "./watermelon.jpg" },
+      { id: 4, name: "Chaser Blueberry Mint", price: 60, stock: 4, img: "./blueberry_mint.jpg" },
+      { id: 5, name: "Chaser Energy Cherry", price: 60, stock: 3, img: "./energy_cherry.jpg" },
+      { id: 6, name: "Chaser Energy Raspberry", price: 60, stock: 2, img: "./energy_raspberry.jpg" },
+      { id: 7, name: "Chaser Pineapple", price: 60, stock: 4, img: "./pineapple.jpg" },
+      { id: 8, name: "Chaser Pink Lemonade", price: 60, stock: 3, img: "./pink_lemonade.jpg" },
+      { id: 9, name: "Chaser Triple Raspberry", price: 60, stock: 5, img: "./triple_raspberry.jpg" },
+      { id: 10, name: "Chaser Tropic Punch", price: 60, stock: 2, img: "./tropic_punch.jpg" }
     ];
 
     let cart = {};
@@ -416,7 +415,7 @@
         grid.innerHTML += `
           <div class="product-card">
             <div class="img-box">
-              <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null; this.src='https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/mint-500x500.png';">
+              <img src="${p.img}" alt="${p.name}">
             </div>
             <div class="stock-tag">${p.stock} шт в наличии ✅</div>
             <div class="product-name">${p.name}</div>
