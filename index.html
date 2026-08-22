@@ -271,7 +271,7 @@
       transform: scale(0.97);
     }
 
-    /* КОРЗИНА */
+    /* КОРЗИНА И ДОСТАВКА */
     #cart-screen {
       display: none;
       background: var(--card-bg);
@@ -336,6 +336,54 @@
     .cart-divider {
       border-top: 1px dashed var(--border-color);
       margin: 20px 0;
+    }
+
+    /* ПОЛЯ ДЛЯ ВВОДА ДАННЫХ ДОСТАВКИ */
+    .delivery-section {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .delivery-section-title {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--accent-yellow);
+      text-transform: uppercase;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .input-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-gray);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .input-label span {
+      color: var(--accent-yellow);
+      font-size: 11px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: #1a1a1f;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--text-white);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-yellow);
     }
 
     .cart-total-row {
@@ -503,12 +551,36 @@
   <div id="cart-screen">
     <div class="cart-title">Ваша корзина</div>
     <div id="cart-list"></div>
-    <div class="cart-divider"></div>
-    <div class="cart-total-row">
-      <span>Итого:</span>
-      <span class="val" id="total-val">0 PLN</span>
+
+    <div id="delivery-form-container" style="display: none;">
+      <div class="cart-divider"></div>
+      
+      <div class="delivery-section">
+        <div class="delivery-section-title">Данные для доставки</div>
+        
+        <div class="input-group">
+          <label class="input-label" for="cust-name">Имя и Фамилия <span>(строго на латинице)</span>:</label>
+          <input type="text" id="cust-name" class="form-input" placeholder="например, Jan Kowalski">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="cust-address">Адрес доставки / Paczkomat:</label>
+          <input type="text" id="cust-address" class="form-input" placeholder="Город, номер Paczkomat или адрес">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="cust-phone">Номер телефона:</label>
+          <input type="tel" id="cust-phone" class="form-input" placeholder="+48 123 456 789">
+        </div>
+      </div>
+
+      <div class="cart-divider"></div>
+      <div class="cart-total-row">
+        <span>Итого:</span>
+        <span class="val" id="total-val">0 PLN</span>
+      </div>
+      <button class="btn-checkout" onclick="checkout()">ОФОРМИТЬ ЗАКАЗ 🚀</button>
     </div>
-    <button class="btn-checkout" onclick="checkout()">ОФОРМИТЬ ЗАКАЗ 🚀</button>
   </div>
 
   <!-- МОДАЛЬНОЕ ОКНО ТОВАРА -->
@@ -650,14 +722,17 @@
     function renderCart() {
       const list = document.getElementById('cart-list');
       const totalVal = document.getElementById('total-val');
+      const formContainer = document.getElementById('delivery-form-container');
       const keys = Object.keys(cart);
 
       if (keys.length === 0) {
         list.innerHTML = '<div class="empty-msg">Ваша корзина пуста</div>';
         totalVal.innerText = '0 PLN';
+        formContainer.style.display = 'none';
         return;
       }
 
+      formContainer.style.display = 'block';
       list.innerHTML = '';
       let total = 0;
 
@@ -691,17 +766,33 @@
         return;
       }
 
+      const name = document.getElementById('cust-name').value.trim();
+      const address = document.getElementById('cust-address').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+
+      if (!name || !address || !phone) {
+        alert("Пожалуйста, заполните все поля для доставки!");
+        return;
+      }
+
       const totalSum = itemsArray.reduce((sum, i) => sum + i.price * i.qty, 0);
       const data = {
         items: itemsArray.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-        total: totalSum
+        total: totalSum,
+        customer: {
+          name: name,
+          address: address,
+          phone: phone
+        }
       };
 
       if (tg) {
         tg.sendData(JSON.stringify(data));
-        tg.close();
+        setTimeout(() => {
+          tg.close();
+        }, 300);
       } else {
-        alert(`Заказ оформлен на сумму ${totalSum} PLN!`);
+        alert(`Заказ оформлен! Сумма: ${totalSum} PLN`);
       }
     }
 
