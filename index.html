@@ -6,7 +6,7 @@
   <title>CHAOS SHOP</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Rubik+Glitch&family=Montserrat:wght@600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&display=swap');
 
     :root {
       --bg-color: #0b0b0d;
@@ -30,7 +30,7 @@
 
     body {
       background-color: var(--bg-color);
-      /* Темный сетчатый фон из оригинала */
+      /* Оригинальный сетчатый фон */
       background-image: 
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -41,7 +41,7 @@
       padding-bottom: 40px;
     }
 
-    /* ПРИВЕТСТВЕННОЕ ОКНО D&N */
+    /* ВСПЛЫВАЮЩЕЕ ОКНО D&N */
     #welcome-modal {
       position: fixed;
       top: 0;
@@ -109,7 +109,7 @@
       box-shadow: 0 4px 15px var(--accent-yellow-glow);
     }
 
-    /* ШАПКА И НАЗВАНИЕ */
+    /* ШАПКА */
     header {
       text-align: center;
       margin-top: 10px;
@@ -123,10 +123,9 @@
       text-transform: uppercase;
       letter-spacing: 2px;
       text-shadow: 0 0 15px var(--accent-yellow-glow);
-      font-family: 'Montserrat', sans-serif;
     }
 
-    /* ТАБЫ (КАТАЛОГ / КОРЗИНА) */
+    /* ТАБЫ */
     .tabs-container {
       display: flex;
       gap: 12px;
@@ -154,7 +153,7 @@
       box-shadow: 0 0 15px var(--accent-yellow-glow);
     }
 
-    /* КАТАЛОГ ТОВАРОВ */
+    /* КАТАЛОГ */
     .catalog-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -182,15 +181,15 @@
       justify-content: center;
       overflow: hidden;
       margin-bottom: 10px;
+      padding: 6px;
     }
 
     .img-box img {
-      max-width: 90%;
-      max-height: 90%;
+      max-width: 100%;
+      max-height: 100%;
       object-fit: contain;
     }
 
-    /* Наличие */
     .stock-tag {
       background: var(--green-stock);
       color: #2ecc71;
@@ -206,10 +205,15 @@
     }
 
     .product-name {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       margin-bottom: 4px;
       color: var(--text-white);
+      line-height: 1.2;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .product-price {
@@ -237,7 +241,7 @@
       transform: scale(0.97);
     }
 
-    /* ЭКРАН КОРЗИНЫ */
+    /* КОРЗИНА */
     #cart-screen {
       display: none;
       background: var(--card-bg);
@@ -356,18 +360,18 @@
     <h1 class="shop-title">CHAOS SHOP</h1>
   </header>
 
-  <!-- ВКТАДКИ КАТАЛОГ / КОРЗИНА -->
+  <!-- ВКЛАДКИ -->
   <div class="tabs-container">
     <button class="tab-btn active" id="btn-tab-catalog" onclick="switchTab('catalog')">Каталог</button>
     <button class="tab-btn" id="btn-tab-cart" onclick="switchTab('cart')">Корзина (0)</button>
   </div>
 
-  <!-- 1. ЭКРАН КАТАЛОГА -->
+  <!-- КАТАЛОГ -->
   <div id="catalog-screen">
     <div class="catalog-grid" id="catalog-grid"></div>
   </div>
 
-  <!-- 2. ЭКРАН КОРЗИНЫ -->
+  <!-- КОРЗИНА -->
   <div id="cart-screen">
     <div class="cart-title">Ваша корзина</div>
     <div id="cart-list"></div>
@@ -383,21 +387,24 @@
     const tg = window.Telegram ? window.Telegram.WebApp : null;
     if (tg) tg.expand();
 
-    // Закрытие приветственного окна
     function closeWelcome() {
       const modal = document.getElementById('welcome-modal');
       modal.style.opacity = '0';
       setTimeout(() => { modal.style.display = 'none'; }, 400);
     }
 
-    // ТОВАРЫ СО СКРИНШОТОВ
+    // ВСЕ 10 ТОВАРОВ CHAOS / CHASER С ПРЯМЫМИ КАРТИНКАМИ
     const products = [
-      { id: 1, name: "Chaser Mint", price: 60, stock: 4, img: "https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/mint-500x500.png" },
-      { id: 2, name: "Chaser Grape Plus", price: 60, stock: 3, img: "https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/grape-500x500.png" },
-      { id: 3, name: "Chaser Watermelon", price: 60, stock: 5, img: "https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/watermelon-500x500.png" },
-      { id: 4, name: "Chaser Raspberry", price: 60, stock: 2, img: "https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/raspberry-500x500.png" },
-      { id: 5, name: "Chaser Mango", price: 60, stock: 4, img: "https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/mango-500x500.png" },
-      { id: 6, name: "Chaser Apple", price: 60, stock: 3, img: "https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/apple-500x500.png" }
+      { id: 1, name: "Chaser Mint", price: 60, stock: 4, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-mint.png" },
+      { id: 2, name: "Chaser Grape Plus", price: 60, stock: 3, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-grape.png" },
+      { id: 3, name: "Chaser Watermelon", price: 60, stock: 5, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-watermelon.png" },
+      { id: 4, name: "Chaser Raspberry", price: 60, stock: 2, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-raspberry.png" },
+      { id: 5, name: "Chaser Mango", price: 60, stock: 4, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-mango.png" },
+      { id: 6, name: "Chaser Apple", price: 60, stock: 3, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-apple.png" },
+      { id: 7, name: "Chaser Blueberry", price: 60, stock: 4, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-blueberry.png" },
+      { id: 8, name: "Chaser Peach", price: 60, stock: 3, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-peach.png" },
+      { id: 9, name: "Chaser Strawberry", price: 60, stock: 5, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-strawberry.png" },
+      { id: 10, name: "Chaser Cherry", price: 60, stock: 2, img: "https://chaser.com.ua/images/stories/virtuemart/product/chaser-for-pods-cherry.png" }
     ];
 
     let cart = {};
@@ -409,7 +416,7 @@
         grid.innerHTML += `
           <div class="product-card">
             <div class="img-box">
-              <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=300';">
+              <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null; this.src='https://chaserlab.com.ua/image/cache/catalog/chaser-for-pods/mint-500x500.png';">
             </div>
             <div class="stock-tag">${p.stock} шт в наличии ✅</div>
             <div class="product-name">${p.name}</div>
