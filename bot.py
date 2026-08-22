@@ -1,4 +1,6 @@
 import logging
+import os
+import json
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 from aiogram.types import (
@@ -11,19 +13,18 @@ from aiogram.types import (
 from aiogram.enums import ParseMode
 import asyncio
 
-# Токен вашего бота
-TOKEN = "YOUR_BOT_TOKEN_HERE"  # Укажите ваш токен бота или используйте os.getenv('BOT_TOKEN')
+# Укажите токен бота или используйте переменную окружения
+TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN_HERE")
 
-# Новый адрес приложения на Netlify
-WEB_APP_URL = "https://timely-syrniki-261609.netlify.app/"
+# Ссылка на Netlify с версионированием ?v=2.0 для сброса кэша Telegram
+WEB_APP_URL = "https://timely-syrniki-261609.netlify.app/?v=2.0"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
-# Обработчик команды /start
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
-    # Кнопка под полем ввода (Reply Keyboard)
+    # Нижняя кнопка под чатом
     reply_kb = ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🛒 Открыть Chaos Shop", web_app=WebAppInfo(url=WEB_APP_URL))]
@@ -31,7 +32,7 @@ async def cmd_start(message: types.Message):
         resize_keyboard=True
     )
 
-    # Inline-кнопка в самом сообщении
+    # Inline-кнопка в сообщении
     inline_kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="✨ Перейти в магазин", web_app=WebAppInfo(url=WEB_APP_URL))]
@@ -41,15 +42,13 @@ async def cmd_start(message: types.Message):
     await message.answer(
         f"Привет, {message.from_user.first_name}! 👋\n\n"
         f"Добро пожаловать в **Chaos Shop**! 🖤\n"
-        f"Нажмите кнопку ниже, чтобы открыть каталог товаров.",
+        f"Нажмите кнопку ниже, чтобы открыть каталог.",
         reply_markup=inline_kb,
         parse_mode=ParseMode.MARKDOWN
     )
 
-# Обработка данных, поступающих из WebApp при оформлении заказа
 @dp.message(F.web_app_data)
 async def web_app_data_handler(message: types.Message):
-    import json
     data = json.loads(message.web_app_data.data)
     
     items_text = ""
